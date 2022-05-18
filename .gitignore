@@ -5,3 +5,9 @@ __pycache__
 
 # Misc
 example.html
+storage
+
+# Dagster
+dagster_home
+
+.DS_Store
