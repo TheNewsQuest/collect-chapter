@@ -1,8 +1,10 @@
+from vnexpress.enums.categories import VNExpressCategories
+
 VNEXPRESS_CATEGORY_URL = {
-    "news":
+    VNExpressCategories.NEWS:
         "https://e.vnexpress.net/category/listcategory/category_id/1003894",
-    "business":
+    VNExpressCategories.BUSINESS:
         "https://e.vnexpress.net/category/listcategory/category_id/1003895",
-    "life":
+    VNExpressCategories.LIFE:
         "https://e.vnexpress.net/category/listcategory/category_id/1004329",
 }

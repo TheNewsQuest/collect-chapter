@@ -1,12 +1,17 @@
 ## VNExpress HTML Selectors ##
 ITEM_LIST_FOLDER_SELECTOR = "item_list_folder"
 LEAD_POST_DETAIL_ROW_SELECTOR = "lead_post_detail row"
+NORMAL_PARAGRAPH_SELECTOR = "Normal"
+TITLE_POST_SELECTOR = "title_post"
+AUTHOR_SELECTOR = "author"
+
+# HTML Element Selectors
 DIV_SELECTOR = "div"
 SPAN_SELECTOR = "span"
 HREF_SELECTOR = "href"
 PARAGRAPH_SELECTOR = "p"
-NORMAL_PARAGRAPH_SELECTOR = "Normal"
 CLASS_SELECTOR = "class"
+H1_SELECTOR = "h1"
 
 # Icons
 ICON_PHOTO_SELECTOR = "ic-photo"

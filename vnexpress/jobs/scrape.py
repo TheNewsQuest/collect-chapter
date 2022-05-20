@@ -7,18 +7,20 @@ from vnexpress.ops.scrape_articles import \
 
 @job(name=f"scrape_news_{VNEXPRESS_PREFIX}")
 def scrape_news():
-  result = scrape_articles_by_category_op_factory(VNExpressCategories.NEWS)()
-  print(result)
+  """Job for scraping news articles
+  """
+  scrape_articles_by_category_op_factory(VNExpressCategories.NEWS)()
 
 
 @job(name=f"scrape_business_{VNEXPRESS_PREFIX}")
 def scrape_business():
-  result = scrape_articles_by_category_op_factory(
-      VNExpressCategories.BUSINESS)()
-  print(result)
+  """Job for scraping business articles
+  """
+  scrape_articles_by_category_op_factory(VNExpressCategories.BUSINESS)()
 
 
 @job(name=f"scrape_life_{VNEXPRESS_PREFIX}")
 def scrape_life():
-  result = scrape_articles_by_category_op_factory(VNExpressCategories.LIFE)()
-  print(result)
+  """Job for scraping life articles
+  """
+  scrape_articles_by_category_op_factory(VNExpressCategories.LIFE)()
