@@ -5,11 +5,11 @@ import pytz
 from bs4 import BeautifulSoup
 from vnexpress.constants.selectors import (AUTHOR_SELECTOR, DIV_SELECTOR,
                                            H1_SELECTOR,
+                                           ITEM_MENU_LEFT_ACTIVE_SELECTOR,
                                            LEAD_POST_DETAIL_ROW_SELECTOR,
                                            SPAN_SELECTOR, TITLE_POST_SELECTOR)
-from vnexpress.constants.time import (VNEXPRESS_DATE_POSTED_FORMAT,
-                                      VNEXPRESS_TIMEZONE,
-                                      YYYYMMDDHHMMSS_DATE_FORMAT)
+from vnexpress.constants.time import VNEXPRESS_TIMEZONE
+from vnexpress.enums.date_format import DateFormats
 
 
 def extract_author(soup: BeautifulSoup) -> str:
@@ -72,14 +72,50 @@ def extract_posted_at_datestr(soup: BeautifulSoup) -> str:
   post_datestr = author_div_txt[match_datestr.start():match_datestr.end()]
   local_time = pytz.timezone(VNEXPRESS_TIMEZONE)
   local_datetime = local_time.localize(
-      datetime.strptime(post_datestr, VNEXPRESS_DATE_POSTED_FORMAT))
+      datetime.strptime(post_datestr, DateFormats.VNEXPRESS_DATE_POSTED))
   utc_datetime = local_datetime.astimezone(pytz.utc)
-  return utc_datetime.strftime(YYYYMMDDHHMMSS_DATE_FORMAT)
+  return utc_datetime.strftime(DateFormats.YYYYMMDDHHMMSS)
 
 
 def extract_thumbnail_url(soup: BeautifulSoup) -> str:
+  """Extract Thumbnail's URL from VNExpress article
+
+  Args:
+      soup (BeautifulSoup): BeautifulSoup HTML Elements
+
+  Returns:
+      str: Thumbnail's URL
+  """
   thumb_detail_div = soup.find(DIV_SELECTOR, class_="thumb_detail_top")
   # Handle missing thumbnail detail
   if thumb_detail_div is None:
     return ""
   return thumb_detail_div.img["src"]
+
+
+def extract_category(soup: BeautifulSoup) -> str:
+  """Extract category from VNExpress article
+
+  Args:
+      soup (BeautifulSoup): BeautifulSoup HTML Elements
+
+  Returns:
+      str: category (lowercase)
+  """
+  active_div = soup.find(DIV_SELECTOR, class_=ITEM_MENU_LEFT_ACTIVE_SELECTOR)
+  category = active_div.a.text.lower()
+  return category
+
+
+def extract_subcategory(soup: BeautifulSoup) -> str:
+  """Extract subcategory from VNExpress article
+
+  Args:
+      soup (BeautifulSoup): BeautifulSoup HTML Elements
+
+  Returns:
+      str: subcategory (lowercase)
+  """
+  detail_div = soup.find(DIV_SELECTOR, class_="folder_name_detail")
+  subcategory = detail_div.a.text.lower().replace('\n', '').replace('\t', '')
+  return subcategory

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from time import sleep
 
 import requests
@@ -9,28 +8,18 @@ from vnexpress.constants.selectors import (DIV_SELECTOR, HREF_SELECTOR,
                                            NORMAL_PARAGRAPH_SELECTOR,
                                            PARAGRAPH_SELECTOR)
 from vnexpress.constants.url import VNEXPRESS_CATEGORY_URL
+from vnexpress.dataclasses.article_detail import ArticleDetail
 from vnexpress.enums.categories import VNExpressCategories
+from vnexpress.enums.env import EnvVariables
 from vnexpress.utils.content import is_restricted_content
-from vnexpress.utils.soup import (extract_author, extract_lead_post_detail_row,
+from vnexpress.utils.soup import (extract_author, extract_category,
+                                  extract_lead_post_detail_row,
                                   extract_posted_at_datestr,
-                                  extract_thumbnail_url, extract_title)
-
-SCRAPE_SLEEP_TIME = 1.25
-
-
-@dataclass
-class ArticleDetail:
-  """Data class for article's detail
-  """
-  title: str
-  thumbnail_url: str
-  content: str
-  link: str
-  author: str
-  posted_at: str
+                                  extract_subcategory, extract_thumbnail_url,
+                                  extract_title)
 
 
-def scrape_links(page_url: str) -> list[str]:
+def _scrape_links(page_url: str) -> list[str]:
   """Scrape list of VNExpress links from a page.
 
   Args:
@@ -56,7 +45,7 @@ def scrape_links(page_url: str) -> list[str]:
   return links
 
 
-def scrape_article(link: str) -> ArticleDetail:
+def _scrape_article(link: str) -> ArticleDetail:
   """Scrape article's detail from VNExpress
 
   Args:
@@ -71,9 +60,11 @@ def scrape_article(link: str) -> ArticleDetail:
   soup = BeautifulSoup(html, "html.parser")
   title = extract_title(soup)
   author = extract_author(soup)
-  lead_post_detail = extract_lead_post_detail_row(soup)
   posted_at = extract_posted_at_datestr(soup)
   thumbnail_url = extract_thumbnail_url(soup)
+  lead_post_detail = extract_lead_post_detail_row(soup)
+  category = extract_category(soup)
+  subcategory = extract_subcategory(soup)
   paragraphs = [lead_post_detail]  # Init paragraphs content
   p_tags = soup.find_all(PARAGRAPH_SELECTOR, class_=NORMAL_PARAGRAPH_SELECTOR)
   for p_tag in p_tags:
@@ -84,11 +75,13 @@ def scrape_article(link: str) -> ArticleDetail:
                        content=content,
                        author=author,
                        link=link,
-                       posted_at=posted_at)
+                       posted_at=posted_at,
+                       category=category,
+                       subcategory=subcategory)
 
 
-def scrape_articles_by_category_op_factory(category: VNExpressCategories,
-                                           **kwargs) -> OpDefinition:
+def scrape_articles_op_factory(category: VNExpressCategories,
+                               **kwargs) -> OpDefinition:
   """Factory for creating article scraping job based on specified category.
 
   Args:
@@ -98,32 +91,24 @@ def scrape_articles_by_category_op_factory(category: VNExpressCategories,
       OpDefinition: Operation for scraping article based on specified category.
   """
 
-  @op(name=f"scrape_articles_by_{category}", **kwargs)
+  @op(name=f"scrape_{category}_articles_op", **kwargs)
   def _op() -> list[ArticleDetail]:
-    start_page = 1
     articles = []
-    while True:
-      scrape_url = f"{VNEXPRESS_CATEGORY_URL[category]}/page/{start_page}"
-      links = scrape_links(scrape_url)
+    # Scrape articles per page
+    for page in range(1, EnvVariables.PAGE_SCRAPING_THRESHOLD + 1):
+      scrape_url = f"{VNEXPRESS_CATEGORY_URL[category]}/page/{page}"
+      links = _scrape_links(scrape_url)
       if len(links) == 0:
         break
       for link in links:
-        article = scrape_article(link)
+        article = _scrape_article(link)
         # get_dagster_logger().debug(article)
         articles.append(article)
-      sleep(SCRAPE_SLEEP_TIME)  # Delay crawler to avoid rate limit
-      start_page += 1
-      if start_page > 10:  # Early-stop for testing
-        get_dagster_logger().warn(
-            "Early stopping... Pipeline is on testing mode!")
-        break
+        # Delay crawler to avoid rate limit
+        sleep(EnvVariables.SCRAPE_SLEEP_TIME)
+    get_dagster_logger().warn("Early stopping... Pipeline is on testing mode!")
     get_dagster_logger().info(
         f"Total {category} articles collected: {len(articles)}")
     return articles
 
   return _op
-
-
-@op
-def persist_articles_to_s3_bucket(bucket: str, articles: list[ArticleDetail]):
-  pass
