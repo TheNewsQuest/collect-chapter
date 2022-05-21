@@ -3,20 +3,20 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 from dagster import OpDefinition, get_dagster_logger, op
-from vnexpress.constants.selectors import (DIV_SELECTOR, HREF_SELECTOR,
-                                           ITEM_LIST_FOLDER_SELECTOR,
-                                           NORMAL_PARAGRAPH_SELECTOR,
-                                           PARAGRAPH_SELECTOR)
-from vnexpress.constants.url import VNEXPRESS_CATEGORY_URL
-from vnexpress.dataclasses.article_detail import ArticleDetail
-from vnexpress.enums.categories import VNExpressCategories
-from vnexpress.enums.env import EnvVariables
-from vnexpress.utils.content import is_restricted_content
-from vnexpress.utils.soup import (extract_author, extract_category,
-                                  extract_lead_post_detail_row,
-                                  extract_posted_at_datestr,
-                                  extract_subcategory, extract_thumbnail_url,
-                                  extract_title)
+from vnexpress.common.constants.selectors import (DIV_SELECTOR, HREF_SELECTOR,
+                                                  ITEM_LIST_FOLDER_SELECTOR,
+                                                  NORMAL_PARAGRAPH_SELECTOR,
+                                                  PARAGRAPH_SELECTOR)
+from vnexpress.common.constants.url import VNEXPRESS_CATEGORY_URL
+from vnexpress.common.dataclasses.article_detail import ArticleDetail
+from vnexpress.common.enums.categories import VNExpressCategories
+from vnexpress.common.enums.env import EnvVariables
+from vnexpress.common.utils.content import is_restricted_content
+from vnexpress.common.utils.soup import (extract_author, extract_category,
+                                         extract_lead_post_detail_row,
+                                         extract_posted_at_datestr,
+                                         extract_subcategory,
+                                         extract_thumbnail_url, extract_title)
 
 
 def _scrape_links(page_url: str) -> list[str]:
@@ -93,9 +93,17 @@ def scrape_articles_op_factory(category: VNExpressCategories,
 
   @op(name=f"scrape_{category}_articles_op", **kwargs)
   def _op() -> list[ArticleDetail]:
-    articles = []
+    """Scrape list of articles based on category operation
+
+    Returns:
+        list[ArticleDetail]: List of article details
+    """
+    # Extract config from env vars
+    scrape_threshold = int(EnvVariables.PAGE_SCRAPING_THRESHOLD)
+    scrape_sleep_time = float(EnvVariables.SCRAPE_SLEEP_TIME)
     # Scrape articles per page
-    for page in range(1, EnvVariables.PAGE_SCRAPING_THRESHOLD + 1):
+    articles = []
+    for page in range(1, scrape_threshold + 1):
       scrape_url = f"{VNEXPRESS_CATEGORY_URL[category]}/page/{page}"
       links = _scrape_links(scrape_url)
       if len(links) == 0:
@@ -105,8 +113,7 @@ def scrape_articles_op_factory(category: VNExpressCategories,
         # get_dagster_logger().debug(article)
         articles.append(article)
         # Delay crawler to avoid rate limit
-        sleep(EnvVariables.SCRAPE_SLEEP_TIME)
-    get_dagster_logger().warn("Early stopping... Pipeline is on testing mode!")
+        sleep(scrape_sleep_time)
     get_dagster_logger().info(
         f"Total {category} articles collected: {len(articles)}")
     return articles

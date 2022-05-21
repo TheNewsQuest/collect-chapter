@@ -1,4 +1,4 @@
-from vnexpress.enums.categories import VNExpressCategories
+from vnexpress.common.enums.categories import VNExpressCategories
 
 VNEXPRESS_CATEGORY_URL = {
     VNExpressCategories.NEWS:

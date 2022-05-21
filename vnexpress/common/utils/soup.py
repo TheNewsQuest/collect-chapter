@@ -3,13 +3,11 @@ from datetime import datetime
 
 import pytz
 from bs4 import BeautifulSoup
-from vnexpress.constants.selectors import (AUTHOR_SELECTOR, DIV_SELECTOR,
-                                           H1_SELECTOR,
-                                           ITEM_MENU_LEFT_ACTIVE_SELECTOR,
-                                           LEAD_POST_DETAIL_ROW_SELECTOR,
-                                           SPAN_SELECTOR, TITLE_POST_SELECTOR)
-from vnexpress.constants.time import VNEXPRESS_TIMEZONE
-from vnexpress.enums.date_format import DateFormats
+from vnexpress.common.constants.selectors import (
+    AUTHOR_SELECTOR, DIV_SELECTOR, H1_SELECTOR, ITEM_MENU_LEFT_ACTIVE_SELECTOR,
+    LEAD_POST_DETAIL_ROW_SELECTOR, SPAN_SELECTOR, TITLE_POST_SELECTOR)
+from vnexpress.common.constants.time import VNEXPRESS_TIMEZONE
+from vnexpress.common.enums.date_format import DateFormats
 
 
 def extract_author(soup: BeautifulSoup) -> str:

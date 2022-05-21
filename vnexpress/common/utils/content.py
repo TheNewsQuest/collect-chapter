@@ -1,11 +1,10 @@
 from bs4 import ResultSet
-
-from vnexpress.constants.selectors import (CLASS_SELECTOR, HREF_SELECTOR,
-                                           ICON_INFOGRAPHIC_SELECTOR,
-                                           ICON_INTERACTIVE_SELECTOR,
-                                           ICON_PHOTO_SELECTOR,
-                                           ICON_VIDEO_SELECTOR,
-                                           VNEXPRESS_COVID19_LINK)
+from vnexpress.common.constants.selectors import (CLASS_SELECTOR, HREF_SELECTOR,
+                                                  ICON_INFOGRAPHIC_SELECTOR,
+                                                  ICON_INTERACTIVE_SELECTOR,
+                                                  ICON_PHOTO_SELECTOR,
+                                                  ICON_VIDEO_SELECTOR,
+                                                  VNEXPRESS_COVID19_LINK)
 
 
 def is_icon(div: ResultSet, icon: str) -> bool:

@@ -3,7 +3,7 @@ import os
 
 import boto3
 from smart_open import open as s_open
-from vnexpress.enums.aws import AWSServices
+from vnexpress.common.enums.aws import AWSServices
 
 
 def upload_file_s3(filename: str, bucket: str, object_name=None):
@@ -22,11 +22,22 @@ def upload_file_s3(filename: str, bucket: str, object_name=None):
 
 
 def write_file_s3(data: object, uri: str):
-  """Write JSON data into file on S3 Bucket via URI and filename.
+  """Write data into file on S3 Bucket via URI and filename.
 
   Args:
       data (object): Data
-      uri (str): uri of S3 bucket
+      uri (str): URI of S3 bucket
   """
   with s_open(uri, 'w', encoding='utf-8') as file:
     file.write(data)
+
+
+def write_json_file_s3(data: object, uri: str):
+  """Write object into JSON file on S3 Bucket via URI and filename.
+
+  Args:
+      data (object): Data
+      uri (str): URI of S3 bucket
+  """
+  with s_open(uri, 'w', encoding='utf-8') as file:
+    json.dump(data, file, ensure_ascii=False, indent=4)
