@@ -8,6 +8,8 @@ class EnvVariables(StrEnum):
   """
   APP_ENV = os.getenv("APP_ENV")
   APP_NAME = os.getenv("APP_NAME")
+  SCHEDULE_TIMEZONE = os.getenv("SCHEDULE_TIMEZONE")
+  VNEXPRESS_TIMEZONE = os.getenv("VNEXPRESS_TIMEZONE")
   VNEXPRESS_REPO_NAME = os.getenv("VNEXPRESS_REPO_NAME")
   S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
   S3_BUCKET_URI = os.getenv("S3_BUCKET_URI")

@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 from vnexpress.common.constants.selectors import (
     AUTHOR_SELECTOR, DIV_SELECTOR, H1_SELECTOR, ITEM_MENU_LEFT_ACTIVE_SELECTOR,
     LEAD_POST_DETAIL_ROW_SELECTOR, SPAN_SELECTOR, TITLE_POST_SELECTOR)
-from vnexpress.common.constants.time import VNEXPRESS_TIMEZONE
 from vnexpress.common.enums.date_format import DateFormats
+from vnexpress.common.enums.env import EnvVariables
 
 
 def extract_author(soup: BeautifulSoup) -> str:
@@ -68,7 +68,7 @@ def extract_posted_at_datestr(soup: BeautifulSoup) -> str:
   if match_datestr is None:
     return None
   post_datestr = author_div_txt[match_datestr.start():match_datestr.end()]
-  local_time = pytz.timezone(VNEXPRESS_TIMEZONE)
+  local_time = pytz.timezone(EnvVariables.VNEXPRESS_TIMEZONE)
   local_datetime = local_time.localize(
       datetime.strptime(post_datestr, DateFormats.VNEXPRESS_DATE_POSTED))
   utc_datetime = local_datetime.astimezone(pytz.utc)

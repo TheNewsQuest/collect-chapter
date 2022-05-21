@@ -1,13 +1,14 @@
 # pylint: disable=wrong-import-position
 from dotenv import load_dotenv
 
-# Load dotenv file configs
 load_dotenv()
 
 from dagster import RepositoryDefinition, repository
 
 from vnexpress.common.enums.categories import VNExpressCategories
 from vnexpress.jobs.scrape import scrape_category_articles_job_factory
+from vnexpress.schedules.scrape_articles_schedule import \
+    scrape_category_articles_schedule_factory
 
 
 @repository
@@ -17,8 +18,16 @@ def vnexpress_repository() -> RepositoryDefinition:
   Returns:
       RepositoryDefinition: Repository containing all jobs, schedules, sensors.
   """
-  scrape_news = scrape_category_articles_job_factory(VNExpressCategories.NEWS)
-  scrape_business = scrape_category_articles_job_factory(
-      VNExpressCategories.BUSINESS)
-  scrape_life = scrape_category_articles_job_factory(VNExpressCategories.LIFE)
-  return [scrape_news, scrape_business, scrape_life]
+  # Jobs
+  jobs = [
+      scrape_category_articles_job_factory(VNExpressCategories.NEWS),
+      scrape_category_articles_job_factory(VNExpressCategories.BUSINESS),
+      scrape_category_articles_job_factory(VNExpressCategories.LIFE)
+  ]
+  # Schedules
+  schedules = [
+      scrape_category_articles_schedule_factory(VNExpressCategories.NEWS),
+      scrape_category_articles_schedule_factory(VNExpressCategories.BUSINESS),
+      scrape_category_articles_schedule_factory(VNExpressCategories.LIFE),
+  ]
+  return [*jobs, *schedules]
