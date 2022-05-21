@@ -1,0 +1,1 @@
+VNEXPRESS_TIMEZONE = "Asia/Bangkok"
