@@ -2,13 +2,17 @@ from dagster import JobDefinition, job
 from vnexpress.common.enums.categories import VNExpressCategories
 from vnexpress.ops.save_articles import save_articles_s3_op_factory
 from vnexpress.ops.scrape_articles import scrape_articles_op_factory
-from vnexpress.resources.s3 import s3_resource_prefix
+from vnexpress.resources.latest_articles_dt import get_latest_articles_dt
+from vnexpress.resources.s3_prefix import s3_resource_prefix
 
-SCRAPE_RESOURCE_DEFS = {"s3_resource_prefix": s3_resource_prefix}
+SCRAPE_RESOURCE_DEFS = {
+    "s3_resource_prefix": s3_resource_prefix,
+    "latest_articles_dt": get_latest_articles_dt
+}
 
 
-def scrape_category_articles_job_factory(category: VNExpressCategories,
-                                         **kwargs) -> JobDefinition:
+def scrape_articles_job_factory(category: VNExpressCategories,
+                                **kwargs) -> JobDefinition:
   """Job factory for creating job that scrapes different categories.
 
   Args:
@@ -23,7 +27,7 @@ def scrape_category_articles_job_factory(category: VNExpressCategories,
        **kwargs)
   def _job():
     scrape_articles_op = scrape_articles_op_factory(category)
-    articles = scrape_articles_op()
+    articles = scrape_articles_op()  # pylint: disable=no-value-for-parameter
     save_articles_s3_op = save_articles_s3_op_factory(category)
     save_articles_s3_op(articles=articles)  # pylint: disable=no-value-for-parameter
 

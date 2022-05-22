@@ -91,13 +91,18 @@ def scrape_articles_op_factory(category: VNExpressCategories,
       OpDefinition: Operation for scraping article based on specified category.
   """
 
-  @op(name=f"scrape_{category}_articles_op", **kwargs)
-  def _op() -> list[ArticleDetail]:
+  @op(name=f"scrape_{category}_articles_op",
+      required_resource_keys={"latest_articles_dt"},
+      **kwargs)
+  def _op(context) -> list[ArticleDetail]:
     """Scrape list of articles based on category operation
 
     Returns:
         list[ArticleDetail]: List of article details
     """
+    # Retrieve latest article's datetimes by category
+    latest_dts = getattr(context.resources.latest_articles_dt, f"{category}_dt")
+    get_dagster_logger().info(f"latest_dts of {category}: {latest_dts}")
     # Extract config from env vars
     scrape_threshold = int(EnvVariables.PAGE_SCRAPING_THRESHOLD)
     scrape_sleep_time = float(EnvVariables.SCRAPE_SLEEP_TIME)
@@ -110,7 +115,6 @@ def scrape_articles_op_factory(category: VNExpressCategories,
         break
       for link in links:
         article = _scrape_article(link)
-        # get_dagster_logger().debug(article)
         articles.append(article)
         # Delay crawler to avoid rate limit
         sleep(scrape_sleep_time)

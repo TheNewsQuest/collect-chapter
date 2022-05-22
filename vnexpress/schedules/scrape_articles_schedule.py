@@ -3,13 +3,13 @@ from dagster import (DefaultScheduleStatus, RunRequest, ScheduleDefinition,
 from vnexpress.common.enums.categories import VNExpressCategories
 from vnexpress.common.enums.date_format import DateFormats
 from vnexpress.common.enums.env import EnvVariables
-from vnexpress.jobs.scrape import scrape_category_articles_job_factory
+from vnexpress.jobs.scrape import scrape_articles_job_factory
 
 CRON_EVERY_3_MIN = "*/10 * * * *"
 
 
-def scrape_category_articles_schedule_factory(category: VNExpressCategories,
-                                              **kwargs) -> ScheduleDefinition:
+def scrape_articles_schedule_factory(category: VNExpressCategories,
+                                     **kwargs) -> ScheduleDefinition:
   """Factory for generating scraping articles schedule on category
 
   Args:
@@ -19,8 +19,7 @@ def scrape_category_articles_schedule_factory(category: VNExpressCategories,
       ScheduleDefinition: Schedule
   """
   # Pre-configure parameters for schedule
-  scrape_category_articles_job = scrape_category_articles_job_factory(
-      category=category)
+  scrape_category_articles_job = scrape_articles_job_factory(category=category)
   default_status = DefaultScheduleStatus.RUNNING
   if EnvVariables.APP_ENV == "local":
     default_status = DefaultScheduleStatus.STOPPED

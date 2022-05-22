@@ -1,6 +1,6 @@
 import os
 
-from strenum import StrEnum  # pylint: disable=invalid-name
+from strenum import StrEnum
 
 
 class EnvVariables(StrEnum):
@@ -13,5 +13,6 @@ class EnvVariables(StrEnum):
   VNEXPRESS_REPO_NAME = os.getenv("VNEXPRESS_REPO_NAME")
   S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
   S3_BUCKET_URI = os.getenv("S3_BUCKET_URI")
+  LATEST_ARTICLES_DT_FILENAME = os.getenv("LATEST_ARTICLES_DT_FILENAME")
   PAGE_SCRAPING_THRESHOLD = os.getenv("PAGE_SCRAPING_THRESHOLD")
   SCRAPE_SLEEP_TIME = os.getenv("SCRAPE_SLEEP_TIME")

@@ -6,9 +6,9 @@ load_dotenv()
 from dagster import RepositoryDefinition, repository
 
 from vnexpress.common.enums.categories import VNExpressCategories
-from vnexpress.jobs.scrape import scrape_category_articles_job_factory
+from vnexpress.jobs.scrape import scrape_articles_job_factory
 from vnexpress.schedules.scrape_articles_schedule import \
-    scrape_category_articles_schedule_factory
+    scrape_articles_schedule_factory
 
 
 @repository
@@ -20,14 +20,14 @@ def vnexpress_repository() -> RepositoryDefinition:
   """
   # Jobs
   jobs = [
-      scrape_category_articles_job_factory(VNExpressCategories.NEWS),
-      scrape_category_articles_job_factory(VNExpressCategories.BUSINESS),
-      scrape_category_articles_job_factory(VNExpressCategories.LIFE)
+      scrape_articles_job_factory(VNExpressCategories.NEWS),
+      scrape_articles_job_factory(VNExpressCategories.BUSINESS),
+      scrape_articles_job_factory(VNExpressCategories.LIFE)
   ]
   # Schedules
   schedules = [
-      scrape_category_articles_schedule_factory(VNExpressCategories.NEWS),
-      scrape_category_articles_schedule_factory(VNExpressCategories.BUSINESS),
-      scrape_category_articles_schedule_factory(VNExpressCategories.LIFE),
+      scrape_articles_schedule_factory(VNExpressCategories.NEWS),
+      scrape_articles_schedule_factory(VNExpressCategories.BUSINESS),
+      scrape_articles_schedule_factory(VNExpressCategories.LIFE),
   ]
   return [*jobs, *schedules]

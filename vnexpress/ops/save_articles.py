@@ -29,8 +29,8 @@ def save_articles_s3_op_factory(category: str, **kwargs) -> OpDefinition:
     """
     today_datestr = datetime.now(tz=pytz.utc).strftime(DateFormats.YYYYMMDD)
     json_file_uri = f"{context.resources.s3_resource_prefix}/{category}/{today_datestr}.json"
-    json_articles_str = ArticleDetail.schema().dump(articles, many=True)
-    write_json_file_s3(json_articles_str, json_file_uri)
+    article_obj_list = ArticleDetail.schema().dump(articles, many=True)
+    write_json_file_s3(article_obj_list, json_file_uri)
     get_dagster_logger().info(f"Save {json_file_uri} successfully.")
 
   return _op

@@ -2,6 +2,7 @@ import json
 import os
 
 import boto3
+from dataclasses_json import DataClassJsonMixin
 from smart_open import open as s_open
 from vnexpress.common.enums.aws import AWSServices
 
@@ -33,11 +34,29 @@ def write_file_s3(data: object, uri: str):
 
 
 def write_json_file_s3(data: object, uri: str):
-  """Write object into JSON file on S3 Bucket via URI and filename.
+  """Write Python object(s) into a JSON file on S3 Bucket via URI.
 
   Args:
       data (object): Data
-      uri (str): URI of S3 bucket
+      uri (str): URI of S3 bucket resource
   """
   with s_open(uri, 'w', encoding='utf-8') as file:
     json.dump(data, file, ensure_ascii=False, indent=4)
+
+
+def read_dataclass_json_file_s3(dataclass: DataClassJsonMixin, uri: str,
+                                many: bool) -> object:
+  """Read json file as dataclass.
+
+  Args:
+      dataclass (DataClassJsonMixin): Dataclass
+      uri (str): S3 URI
+      many (bool): (True) Parse many into list | (False) Parse one into object
+
+  Returns:
+      object: Data object(s)
+  """
+  data = None
+  with s_open(uri, 'r') as file:
+    data = dataclass.schema().loads(file.read(), many=many)
+  return data
