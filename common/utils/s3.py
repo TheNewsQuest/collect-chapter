@@ -4,7 +4,8 @@ import os
 import boto3
 from dataclasses_json import DataClassJsonMixin
 from smart_open import open as s_open
-from vnexpress.common.enums.aws import AWSServices
+
+from common.enums.aws import AWSServices
 
 
 def upload_file_s3(filename: str, bucket: str, object_name=None):

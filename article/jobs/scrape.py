@@ -1,13 +1,16 @@
 from dagster import JobDefinition, job
-from vnexpress.common.enums.categories import VNExpressCategories
-from vnexpress.ops.save_articles import save_articles_s3_op_factory
-from vnexpress.ops.scrape_articles import scrape_articles_op_factory
-from vnexpress.resources.latest_articles_dt import get_latest_articles_dt
-from vnexpress.resources.s3_prefix import s3_resource_prefix
+
+from article.ops.save_article_cursor import save_article_cursor_op_factory
+from article.ops.save_articles import save_articles_s3_op_factory
+from article.ops.scrape_articles import scrape_articles_op_factory
+from article.resources.article_cursors import get_article_cursors
+from article.resources.s3_prefix import s3_resource_prefix
+from common.enums.categories import VNExpressCategories
+from common.enums.resource_keys import ResourceKeys
 
 SCRAPE_RESOURCE_DEFS = {
-    "s3_resource_prefix": s3_resource_prefix,
-    "latest_articles_dt": get_latest_articles_dt
+    str(ResourceKeys.S3_RESOURCE_PREFIX): s3_resource_prefix,
+    str(ResourceKeys.ARTICLE_CURSORS): get_article_cursors
 }
 
 
@@ -30,5 +33,7 @@ def scrape_articles_job_factory(category: VNExpressCategories,
     articles = scrape_articles_op()  # pylint: disable=no-value-for-parameter
     save_articles_s3_op = save_articles_s3_op_factory(category)
     save_articles_s3_op(articles=articles)  # pylint: disable=no-value-for-parameter
+    save_article_cursor_op = save_article_cursor_op_factory(category)
+    save_article_cursor_op(articles=articles)  # pylint: disable=no-value-for-parameter
 
   return _job

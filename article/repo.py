@@ -5,14 +5,14 @@ load_dotenv()
 
 from dagster import RepositoryDefinition, repository
 
-from vnexpress.common.enums.categories import VNExpressCategories
-from vnexpress.jobs.scrape import scrape_articles_job_factory
-from vnexpress.schedules.scrape_articles_schedule import \
+from article.jobs.scrape import scrape_articles_job_factory
+from article.schedules.scrape_articles_schedule import \
     scrape_articles_schedule_factory
+from common.enums import VNExpressCategories
 
 
 @repository
-def vnexpress_repository() -> RepositoryDefinition:
+def article_repository() -> RepositoryDefinition:
   """Repository of VNExpress scraping jobs, schedules
 
   Returns:

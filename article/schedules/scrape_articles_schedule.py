@@ -1,11 +1,11 @@
 from dagster import (DefaultScheduleStatus, RunRequest, ScheduleDefinition,
                      get_dagster_logger, schedule)
-from vnexpress.common.enums.categories import VNExpressCategories
-from vnexpress.common.enums.date_format import DateFormats
-from vnexpress.common.enums.env import EnvVariables
-from vnexpress.jobs.scrape import scrape_articles_job_factory
 
-CRON_EVERY_3_MIN = "*/10 * * * *"
+from article.jobs.scrape import scrape_articles_job_factory
+from common.enums import DateFormats, VNExpressCategories
+from common.enums.env import EnvVariables
+
+CRON_EVERY_10_MINS = "*/10 * * * *"
 
 
 def scrape_articles_schedule_factory(category: VNExpressCategories,
@@ -26,7 +26,7 @@ def scrape_articles_schedule_factory(category: VNExpressCategories,
   execution_timezone = str(EnvVariables.SCHEDULE_TIMEZONE)
 
   @schedule(name=f"scrape_{category}_articles_schedule",
-            cron_schedule=CRON_EVERY_3_MIN,
+            cron_schedule=CRON_EVERY_10_MINS,
             job=scrape_category_articles_job,
             execution_timezone=execution_timezone,
             default_status=default_status,

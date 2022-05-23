@@ -3,11 +3,10 @@ from datetime import datetime
 
 import pytz
 from bs4 import BeautifulSoup
-from vnexpress.common.constants.selectors import (
-    AUTHOR_SELECTOR, DIV_SELECTOR, H1_SELECTOR, ITEM_MENU_LEFT_ACTIVE_SELECTOR,
-    LEAD_POST_DETAIL_ROW_SELECTOR, SPAN_SELECTOR, TITLE_POST_SELECTOR)
-from vnexpress.common.enums.date_format import DateFormats
-from vnexpress.common.enums.env import EnvVariables
+
+from common.enums.date_formats import DateFormats
+from common.enums.env import EnvVariables
+from common.enums.selectors import HTMLSelectors, VNExpressSelectors
 
 
 def extract_author(soup: BeautifulSoup) -> str:
@@ -19,7 +18,7 @@ def extract_author(soup: BeautifulSoup) -> str:
   Returns:
       str: Author's name
   """
-  author_div = soup.find(DIV_SELECTOR, class_=AUTHOR_SELECTOR)
+  author_div = soup.find(HTMLSelectors.DIV, class_=VNExpressSelectors.AUTHOR)
   if author_div.a is None:
     return "Unknown"
   return author_div.a.text
@@ -34,8 +33,8 @@ def extract_title(soup: BeautifulSoup) -> str:
   Returns:
       str: Title
   """
-  return soup.find(H1_SELECTOR,
-                   class_=TITLE_POST_SELECTOR).text  # Extract title
+  return soup.find(HTMLSelectors.H1,
+                   class_=VNExpressSelectors.TITLE_POST).text  # Extract title
 
 
 def extract_lead_post_detail_row(soup: BeautifulSoup) -> str:
@@ -47,9 +46,8 @@ def extract_lead_post_detail_row(soup: BeautifulSoup) -> str:
   Returns:
       str: Lead post detail row
   """
-  return soup.find(
-      SPAN_SELECTOR,
-      class_=LEAD_POST_DETAIL_ROW_SELECTOR).text  # Find post leading row
+  return soup.find(HTMLSelectors.SPAN,
+                   class_=VNExpressSelectors.LEAD_POST_DETAIL_ROW).text
 
 
 def extract_posted_at_datestr(soup: BeautifulSoup) -> str:
@@ -61,7 +59,7 @@ def extract_posted_at_datestr(soup: BeautifulSoup) -> str:
   Returns:
       str: Date String for posted time
   """
-  author_div = soup.find(DIV_SELECTOR, class_=AUTHOR_SELECTOR)
+  author_div = soup.find(HTMLSelectors.DIV, class_=VNExpressSelectors.AUTHOR)
   author_div_txt = author_div.text.replace("&nbsp", "")
   match_datestr = re.search(
       r"([a-zA-Z]+ [0-9]+, [0-9]+ \| [0-9]+:[0-9]+ [a-z]+)", author_div_txt)
@@ -84,7 +82,7 @@ def extract_thumbnail_url(soup: BeautifulSoup) -> str:
   Returns:
       str: Thumbnail's URL
   """
-  thumb_detail_div = soup.find(DIV_SELECTOR, class_="thumb_detail_top")
+  thumb_detail_div = soup.find(HTMLSelectors.DIV, class_="thumb_detail_top")
   # Handle missing thumbnail detail
   if thumb_detail_div is None:
     return ""
@@ -100,7 +98,8 @@ def extract_category(soup: BeautifulSoup) -> str:
   Returns:
       str: category (lowercase)
   """
-  active_div = soup.find(DIV_SELECTOR, class_=ITEM_MENU_LEFT_ACTIVE_SELECTOR)
+  active_div = soup.find(HTMLSelectors.DIV,
+                         class_=VNExpressSelectors.ITEM_MENU_LEFT_ACTIVE)
   category = active_div.a.text.lower()
   return category
 
@@ -114,6 +113,7 @@ def extract_subcategory(soup: BeautifulSoup) -> str:
   Returns:
       str: subcategory (lowercase)
   """
-  detail_div = soup.find(DIV_SELECTOR, class_="folder_name_detail")
+  detail_div = soup.find(HTMLSelectors.DIV,
+                         class_=VNExpressSelectors.FOLDER_NAME_DETAIL)
   subcategory = detail_div.a.text.lower().replace('\n', '').replace('\t', '')
   return subcategory
