@@ -2,9 +2,11 @@ from datetime import datetime
 
 import pytz
 from dagster import OpDefinition, get_dagster_logger, op
-from vnexpress.common.dataclasses.article_detail import ArticleDetail
-from vnexpress.common.enums.date_format import DateFormats
-from vnexpress.common.utils.s3 import write_json_file_s3
+
+from common.dataclasses.article_detail import ArticleDetail
+from common.enums.date_formats import DateFormats
+from common.enums.resource_keys import ResourceKeys
+from common.utils.s3 import write_json_file_s3
 
 
 def save_articles_s3_op_factory(category: str, **kwargs) -> OpDefinition:
@@ -18,7 +20,7 @@ def save_articles_s3_op_factory(category: str, **kwargs) -> OpDefinition:
   """
 
   @op(name=f"save_{category}_articles_s3_op",
-      required_resource_keys={"s3_resource_prefix"},
+      required_resource_keys={str(ResourceKeys.S3_RESOURCE_PREFIX)},
       **kwargs)
   def _op(context, articles: list[ArticleDetail]) -> None:
     """Save list of articles to S3 bucket operation
@@ -29,8 +31,8 @@ def save_articles_s3_op_factory(category: str, **kwargs) -> OpDefinition:
     """
     today_datestr = datetime.now(tz=pytz.utc).strftime(DateFormats.YYYYMMDD)
     json_file_uri = f"{context.resources.s3_resource_prefix}/{category}/{today_datestr}.json"
-    json_articles_str = ArticleDetail.schema().dump(articles, many=True)
-    write_json_file_s3(json_articles_str, json_file_uri)
+    article_obj_list = ArticleDetail.schema().dump(articles, many=True)
+    write_json_file_s3(article_obj_list, json_file_uri)
     get_dagster_logger().info(f"Save {json_file_uri} successfully.")
 
   return _op

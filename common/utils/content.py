@@ -1,10 +1,7 @@
 from bs4 import ResultSet
-from vnexpress.common.constants.selectors import (CLASS_SELECTOR, HREF_SELECTOR,
-                                                  ICON_INFOGRAPHIC_SELECTOR,
-                                                  ICON_INTERACTIVE_SELECTOR,
-                                                  ICON_PHOTO_SELECTOR,
-                                                  ICON_VIDEO_SELECTOR,
-                                                  VNEXPRESS_COVID19_LINK)
+
+from common.constants import VNEXPRESS_COVID19_URL
+from common.enums.selectors import HTMLSelectors, VNExpressSelectors
 
 
 def is_icon(div: ResultSet, icon: str) -> bool:
@@ -16,7 +13,7 @@ def is_icon(div: ResultSet, icon: str) -> bool:
   Returns:
       bool: True if it's photo slideshow  || False if not
   """
-  return div.span is not None and div.span.i[CLASS_SELECTOR][1] == icon
+  return div.span is not None and div.span.i[HTMLSelectors.CLASS][1] == icon
 
 
 def is_covid_content(div: ResultSet) -> bool:
@@ -28,7 +25,7 @@ def is_covid_content(div: ResultSet) -> bool:
   Returns:
       bool: True if it's photo slideshow || False if not
   """
-  return div.a[HREF_SELECTOR] == VNEXPRESS_COVID19_LINK
+  return div.a[HTMLSelectors.HREF] == VNEXPRESS_COVID19_URL
 
 
 def is_restricted_content(div: ResultSet) -> bool:
@@ -42,12 +39,12 @@ def is_restricted_content(div: ResultSet) -> bool:
   """
   if is_covid_content(div):
     return True
-  if is_icon(div, ICON_PHOTO_SELECTOR):
+  if is_icon(div, VNExpressSelectors.ICON_PHOTO):
     return True
-  if is_icon(div, ICON_VIDEO_SELECTOR):
+  if is_icon(div, VNExpressSelectors.ICON_VIDEO):
     return True
-  if is_icon(div, ICON_INFOGRAPHIC_SELECTOR):
+  if is_icon(div, VNExpressSelectors.ICON_INFOGRAPHIC):
     return True
-  if is_icon(div, ICON_INTERACTIVE_SELECTOR):
+  if is_icon(div, VNExpressSelectors.ICON_INTERACTIVE):
     return True
   return False
