@@ -3,8 +3,8 @@ from dagster import (DefaultScheduleStatus, RunRequest, ScheduleDefinition,
 
 from article.vnexpress.jobs.scrape_articles import \
     VNExpressScrapeArticlesJobFactory
-from common.configs import DateFormats, VNExpressCategories
-from common.configs.env import EnvVariables
+from common.config import DateFormats, VNExpressCategories
+from common.config.env import EnvVariables
 
 CRON_EVERY_10_MINS = "*/10 * * * *"
 

@@ -4,9 +4,9 @@ from datetime import datetime
 import pytz
 from bs4 import BeautifulSoup
 
-from common.configs.date_formats import DateFormats
-from common.configs.env import EnvVariables
-from common.configs.selectors import HTMLSelectors, VNExpressSelectors
+from common.config.date_formats import DateFormats
+from common.config.env import EnvVariables
+from common.config.selectors import HTMLSelectors, VNExpressSelectors
 
 
 def extract_author(soup: BeautifulSoup) -> str:

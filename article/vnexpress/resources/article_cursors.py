@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from dagster import get_dagster_logger, resource
 from dataclasses_json import DataClassJsonMixin
 
-from common.configs.env import EnvVariables
-from common.configs.resource_keys import ResourceKeys
+from common.config.env import EnvVariables
+from common.config.resource_keys import ResourceKeys
 from common.utils.s3 import read_dataclass_json_file_s3, write_json_file_s3
 
 

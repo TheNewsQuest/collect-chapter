@@ -1,4 +1,4 @@
-from common.configs.categories import VNExpressCategories
+from common.config.categories import VNExpressCategories
 
 VNEXPRESS_CATEGORY_URL = {
     VNExpressCategories.NEWS:

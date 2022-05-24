@@ -4,9 +4,9 @@ from dagster import OpDefinition, op
 
 from article._base.ops.scrape_articles import ArticleDetail
 from article.vnexpress.resources.article_cursors import VNExpressArticleCursors
-from common.configs.categories import VNExpressCategories
-from common.configs.env import EnvVariables
-from common.configs.resource_keys import ResourceKeys
+from common.config.categories import VNExpressCategories
+from common.config.env import EnvVariables
+from common.config.resource_keys import ResourceKeys
 from common.utils.s3 import read_dataclass_json_file_s3, write_json_file_s3
 
 

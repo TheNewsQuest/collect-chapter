@@ -4,8 +4,8 @@ import pytz
 from dagster import OpDefinition, get_dagster_logger, op
 
 from article._base.ops.scrape_articles import ArticleDetail
-from common.configs.date_formats import DateFormats
-from common.configs.resource_keys import ResourceKeys
+from common.config.date_formats import DateFormats
+from common.config.resource_keys import ResourceKeys
 from common.utils.s3 import write_json_file_s3
 
 # TODO: Change Save Articles function factory to OOP Factory!!!

@@ -7,12 +7,12 @@ from dagster import OpDefinition, get_dagster_logger, op
 
 from article._base.ops import (ArticleDetail, BaseScrapeArticlesOp,
                                BaseScrapeArticlesOpFactory)
-from common.configs import (VNEXPRESS_CATEGORY_URL, HTMLSelectors,
-                            VNExpressSelectors)
-from common.configs.categories import VNExpressCategories
-from common.configs.date_formats import DateFormats
-from common.configs.env import EnvVariables
-from common.configs.resource_keys import ResourceKeys
+from common.config import (VNEXPRESS_CATEGORY_URL, HTMLSelectors,
+                           VNExpressSelectors)
+from common.config.categories import VNExpressCategories
+from common.config.date_formats import DateFormats
+from common.config.env import EnvVariables
+from common.config.resource_keys import ResourceKeys
 from common.utils.content import is_restricted_content
 from common.utils.provider import build_provider_id
 from common.utils.soup import (extract_author, extract_category,

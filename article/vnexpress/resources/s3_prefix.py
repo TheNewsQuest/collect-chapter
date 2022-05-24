@@ -1,6 +1,6 @@
 from dagster import resource
 
-from common.configs.env import EnvVariables
+from common.config.env import EnvVariables
 
 
 @resource

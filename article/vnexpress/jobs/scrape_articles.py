@@ -10,8 +10,8 @@ from article.vnexpress.ops.scrape_articles import \
     VNExpressScrapeArticlesOpFactory
 from article.vnexpress.resources.article_cursors import get_article_cursors
 from article.vnexpress.resources.s3_prefix import s3_resource_prefix
-from common.configs import EnvVariables, ResourceKeys
-from common.configs.categories import VNExpressCategories
+from common.config import EnvVariables, ResourceKeys
+from common.config.categories import VNExpressCategories
 from common.utils.provider import build_provider_id
 
 

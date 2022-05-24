@@ -9,7 +9,7 @@ from article.vnexpress.jobs.scrape_articles import \
     VNExpressScrapeArticlesJobFactory
 from article.vnexpress.schedules.scrape_articles_schedule import \
     scrape_articles_schedule_factory
-from common.configs import VNExpressCategories
+from common.config import VNExpressCategories
 
 
 @repository
