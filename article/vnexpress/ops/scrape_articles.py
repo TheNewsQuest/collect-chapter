@@ -5,8 +5,8 @@ import requests
 from bs4 import BeautifulSoup
 from dagster import OpDefinition, get_dagster_logger, op
 
-from article._base.ops import (ArticleDetail, BaseScrapeArticlesOp,
-                               BaseScrapeArticlesOpFactory)
+from article._base.ops import ArticleDetail, BaseScrapeArticlesOp
+from article._base.ops.base_op import BaseCategorizedOpFactory
 from common.config import (VNEXPRESS_CATEGORY_URL, HTMLSelectors,
                            VNExpressSelectors)
 from common.config.categories import VNExpressCategories
@@ -26,8 +26,9 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
   """
 
   def __init__(self, category: str) -> None:
-    super().__init__(category, EnvVariables.VNEXPRESS_PROVIDER_NAME,
-                     {str(ResourceKeys.ARTICLE_CURSORS)})
+    super().__init__(category=category,
+                     provider=EnvVariables.VNEXPRESS_PROVIDER_NAME,
+                     required_resource_keys={str(ResourceKeys.ARTICLE_CURSORS)})
 
   def _scrape_links(self, page_url: str) -> list[str]:
     """Scrape list of VNExpress links from a page.
@@ -133,7 +134,7 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
     return _op
 
 
-class VNExpressScrapeArticlesOpFactory(BaseScrapeArticlesOpFactory):
+class VNExpressScrapeArticlesOpFactory(BaseCategorizedOpFactory):
   """VNExpress Scrape Articles Operation factory
   """
 

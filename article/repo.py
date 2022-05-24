@@ -26,7 +26,10 @@ def article_repository() -> RepositoryDefinition:
           VNExpressCategories.NEWS),
       vnexpress_scrape_articles_job_factory.create_job(
           VNExpressCategories.BUSINESS),
-      vnexpress_scrape_articles_job_factory.create_job(VNExpressCategories.LIFE)
+      vnexpress_scrape_articles_job_factory.create_job(
+          VNExpressCategories.LIFE),
+      vnexpress_scrape_articles_job_factory.create_job(
+          VNExpressCategories.WORLD)
   ]
   # Schedules
   schedules = [

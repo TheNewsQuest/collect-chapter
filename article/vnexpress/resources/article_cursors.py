@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 from dagster import get_dagster_logger, resource
 from dataclasses_json import DataClassJsonMixin
@@ -14,9 +15,10 @@ from common.utils.s3 import read_dataclass_json_file_s3, write_json_file_s3
 class VNExpressArticleCursors(DataClassJsonMixin):
   """Latest VNExpress articles' cursor by category data
   """
-  news_cursor: str = None
-  business_cursor: str = None
-  life_cursor: str = None
+  news_cursor: Optional[str] = None
+  business_cursor: Optional[str] = None
+  life_cursor: Optional[str] = None
+  world_cursor: Optional[str] = None
 
 
 @resource(required_resource_keys={str(ResourceKeys.S3_RESOURCE_PREFIX)})
