@@ -3,10 +3,12 @@ from datetime import datetime
 import pytz
 from dagster import OpDefinition, get_dagster_logger, op
 
-from common.dataclasses.article_detail import ArticleDetail
-from common.enums.date_formats import DateFormats
-from common.enums.resource_keys import ResourceKeys
+from article._base.ops.scrape_articles import ArticleDetail
+from common.configs.date_formats import DateFormats
+from common.configs.resource_keys import ResourceKeys
 from common.utils.s3 import write_json_file_s3
+
+# TODO: Change Save Articles function factory to OOP Factory!!!
 
 
 def save_articles_s3_op_factory(category: str, **kwargs) -> OpDefinition:

@@ -1,0 +1,1 @@
+from article.vnexpress.jobs.scrape_articles import BaseScrapeArticlesJobFactory

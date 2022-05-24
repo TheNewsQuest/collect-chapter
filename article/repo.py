@@ -5,10 +5,11 @@ load_dotenv()
 
 from dagster import RepositoryDefinition, repository
 
-from article.jobs.scrape import scrape_articles_job_factory
-from article.schedules.scrape_articles_schedule import \
+from article.vnexpress.jobs.scrape_articles import \
+    VNExpressScrapeArticlesJobFactory
+from article.vnexpress.schedules.scrape_articles_schedule import \
     scrape_articles_schedule_factory
-from common.enums import VNExpressCategories
+from common.configs import VNExpressCategories
 
 
 @repository
@@ -18,11 +19,14 @@ def article_repository() -> RepositoryDefinition:
   Returns:
       RepositoryDefinition: Repository containing all jobs, schedules, sensors.
   """
+  vnexpress_scrape_articles_job_factory = VNExpressScrapeArticlesJobFactory()
   # Jobs
   jobs = [
-      scrape_articles_job_factory(VNExpressCategories.NEWS),
-      scrape_articles_job_factory(VNExpressCategories.BUSINESS),
-      scrape_articles_job_factory(VNExpressCategories.LIFE)
+      vnexpress_scrape_articles_job_factory.create_job(
+          VNExpressCategories.NEWS),
+      vnexpress_scrape_articles_job_factory.create_job(
+          VNExpressCategories.BUSINESS),
+      vnexpress_scrape_articles_job_factory.create_job(VNExpressCategories.LIFE)
   ]
   # Schedules
   schedules = [

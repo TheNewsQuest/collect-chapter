@@ -1,9 +1,10 @@
 from dagster import (DefaultScheduleStatus, RunRequest, ScheduleDefinition,
                      get_dagster_logger, schedule)
 
-from article.jobs.scrape import scrape_articles_job_factory
-from common.enums import DateFormats, VNExpressCategories
-from common.enums.env import EnvVariables
+from article.vnexpress.jobs.scrape_articles import \
+    VNExpressScrapeArticlesJobFactory
+from common.configs import DateFormats, VNExpressCategories
+from common.configs.env import EnvVariables
 
 CRON_EVERY_10_MINS = "*/10 * * * *"
 
@@ -19,7 +20,9 @@ def scrape_articles_schedule_factory(category: VNExpressCategories,
       ScheduleDefinition: Schedule
   """
   # Pre-configure parameters for schedule
-  scrape_category_articles_job = scrape_articles_job_factory(category=category)
+  scrape_articles_job_factory = VNExpressScrapeArticlesJobFactory()
+  scrape_category_articles_job = scrape_articles_job_factory.create_job(
+      category=category)
   default_status = DefaultScheduleStatus.RUNNING
   if EnvVariables.APP_ENV == "local":
     default_status = DefaultScheduleStatus.STOPPED

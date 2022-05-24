@@ -7,3 +7,4 @@ class VNExpressCategories(StrEnum):
   NEWS = 'news'
   BUSINESS = 'business'
   LIFE = 'life'
+  WORLD = 'world'

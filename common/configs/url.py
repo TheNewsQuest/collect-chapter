@@ -1,4 +1,4 @@
-from common.enums.categories import VNExpressCategories
+from common.configs.categories import VNExpressCategories
 
 VNEXPRESS_CATEGORY_URL = {
     VNExpressCategories.NEWS:
@@ -7,6 +7,8 @@ VNEXPRESS_CATEGORY_URL = {
         "https://e.vnexpress.net/category/listcategory/category_id/1003895",
     VNExpressCategories.LIFE:
         "https://e.vnexpress.net/category/listcategory/category_id/1004329",
+    VNExpressCategories.WORLD:
+        "https://e.vnexpress.net/category/listcategory/category_id/1003902"
 }
 
 VNEXPRESS_COVID19_URL = "https://e.vnexpress.net/covid-19/covid-19-viet-nam"

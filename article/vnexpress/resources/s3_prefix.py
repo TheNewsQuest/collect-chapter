@@ -1,6 +1,6 @@
 from dagster import resource
 
-from common.enums.env import EnvVariables
+from common.configs.env import EnvVariables
 
 
 @resource
@@ -10,4 +10,4 @@ def s3_resource_prefix() -> str:
   Returns:
       str: Prefix
   """
-  return f"{EnvVariables.S3_BUCKET_URI}/{EnvVariables.VNEXPRESS_REPO_NAME}"
+  return f"{EnvVariables.S3_BUCKET_URI}/{EnvVariables.VNEXPRESS_PROVIDER_NAME}"
