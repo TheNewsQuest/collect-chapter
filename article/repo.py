@@ -22,19 +22,12 @@ def article_repository() -> RepositoryDefinition:
   vnexpress_scrape_articles_job_factory = VNExpressScrapeArticlesJobFactory()
   # Jobs
   jobs = [
-      vnexpress_scrape_articles_job_factory.create_job(
-          VNExpressCategories.NEWS),
-      vnexpress_scrape_articles_job_factory.create_job(
-          VNExpressCategories.BUSINESS),
-      vnexpress_scrape_articles_job_factory.create_job(
-          VNExpressCategories.LIFE),
-      vnexpress_scrape_articles_job_factory.create_job(
-          VNExpressCategories.WORLD)
+      vnexpress_scrape_articles_job_factory.create_job(category)
+      for category in VNExpressCategories
   ]
   # Schedules
   schedules = [
-      scrape_articles_schedule_factory(VNExpressCategories.NEWS),
-      scrape_articles_schedule_factory(VNExpressCategories.BUSINESS),
-      scrape_articles_schedule_factory(VNExpressCategories.LIFE),
+      scrape_articles_schedule_factory(category)
+      for category in VNExpressCategories
   ]
   return [*jobs, *schedules]
