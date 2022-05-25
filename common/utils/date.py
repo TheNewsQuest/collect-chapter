@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import strptime
 
 import pytz
 
@@ -34,3 +35,18 @@ def format_datetime_str(
       str: Datetime string
   """
   return datetime_obj.strftime(str_format)
+
+
+def format_datetime(
+    datetime_str: str,
+    str_format: DateFormats = DateFormats.YYYYMMDDHHMMSS) -> datetime:
+  """Format Datetime String to Datetime Object with specified format
+
+  Args:
+      datetime_str (datetime): Datetime string
+      str_format (DateFormats, optional): Defaults to DateFormats.YYYYMMDDHHMMSS.
+
+  Returns:
+      str: Datetime object
+  """
+  return strptime(datetime_str, str_format)

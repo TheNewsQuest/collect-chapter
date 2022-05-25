@@ -21,6 +21,7 @@ from common.config.providers import Providers
 from common.config.resource_keys import ResourceKeys
 from common.errors.key import CategoryKeyError
 from common.utils.content import is_restricted_content
+from common.utils.date import format_datetime, format_datetime_str
 from common.utils.provider import build_id
 from common.utils.resource import build_resource_key
 
@@ -30,10 +31,10 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
   """
 
   def __init__(self, category: str) -> None:
-    super().__init__(
-        category=category,
-        provider=Providers.VNEXPRESS,
-    )
+    super().__init__(category=category,
+                     provider=Providers.VNEXPRESS,
+                     scrape_threshold=int(EnvVariables.PAGE_SCRAPING_THRESHOLD),
+                     scrape_sleep_time=float(EnvVariables.SCRAPE_SLEEP_TIME))
     self.required_resource_keys = {
         build_resource_key(self.provider, ResourceKeys.ARTICLE_CURSORS)
     }
@@ -116,21 +117,19 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
           list[ArticleDetail]: List of article details
       """
       # Extract config from env vars
-      scrape_threshold = int(EnvVariables.PAGE_SCRAPING_THRESHOLD)
-      scrape_sleep_time = float(EnvVariables.SCRAPE_SLEEP_TIME)
       article_cursors_resource = getattr(
           context.resources,
           build_resource_key(self.provider, ResourceKeys.ARTICLE_CURSORS))
       # Get article's cursor by category
       article_cursor: str = getattr(article_cursors_resource,
                                     f"{self.category}_cursor")
-      cursor_dt: datetime = None if article_cursor is None else strptime(
-          article_cursor, DateFormats.YYYYMMDDHHMMSS)
+      cursor_dt: datetime = None if article_cursor is None else format_datetime(
+          article_cursor)
       get_dagster_logger().info(
           f"Latest Datetime of {self.category}'s cursor: {cursor_dt}")
       # Scrape articles per page
       articles: list[ArticleDetail] = []
-      for page in range(1, scrape_threshold + 1):
+      for page in range(1, self.scrape_threshold + 1):
         scrape_url = f"{VNEXPRESS_CATEGORY_URL[self.category]}/page/{page}"
         links = self._scrape_links(scrape_url)
         if len(links) == 0:
@@ -141,7 +140,7 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
           if (cursor_dt is not None) and (posted_at_dt == cursor_dt):
             return articles  # Early-stop scraping
           articles.append(article)
-          sleep(scrape_sleep_time)  # Delay scraper
+          sleep(self.scrape_sleep_time)  # Delay scraper
       get_dagster_logger().info(
           f"Total {self.category} articles collected: {len(articles)}")
       return articles

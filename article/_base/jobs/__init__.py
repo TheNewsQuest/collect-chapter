@@ -1,2 +1,1 @@
-from article._base.jobs.scrape_articles import (BaseScrapeArticlesJob,
-                                                BaseScrapeArticlesJobFactory)
+from article._base.jobs.scrape_articles import BaseScrapeArticlesJob

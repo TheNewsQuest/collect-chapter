@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from datetime import datetime
-from typing import Set
+from typing import Optional, Set
 
 import pytz
 from strenum import StrEnum
@@ -24,7 +24,7 @@ class BaseSaveArticlesOp(BaseOp):
   def __init__(self,
                category: StrEnum,
                provider: str,
-               required_resource_keys: Set[str] | None = None) -> None:
+               required_resource_keys: Optional[Set[str]] = None) -> None:
     """Initialize parameters for base Save Articles job
 
     Args:

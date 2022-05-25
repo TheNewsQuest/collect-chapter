@@ -1,61 +1,71 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from dagster import JobDefinition, OpDefinition
+from dagster import OpDefinition, job
 from strenum import StrEnum
 
+from article._base.jobs.base_job import BaseCategorizedJob
+from article._base.ops.base_op import BaseCategorizedOpFactory
+from article._base.ops.scrape_articles import ArticleDetail
+from common.config.providers import Providers
+from common.utils.provider import build_id
 
-class BaseScrapeArticlesJob(ABC):
+
+class BaseScrapeArticlesJob(BaseCategorizedJob):
   """Base Scrape Articles job
-  Args:
-      ABC: Abstract Base Classes
+
+  Attributes:
+      category (StrEnum): Category
+      provider (str): Provider name
+      resource_defs (Dict[str, Any]): Resource Definitions of Dagster
+      scrape_articles_op_factory (BaseCategorizedOpFactory)
+      save_articles_op_factory (BaseCategorizedOpFactory)
+      save_cursor_op_factory (BaseCategorizedOpFactory)
   """
 
   def __init__(self,
-               category: str,
-               provider: str,
-               resource_defs: Dict[str, Any] | None = None) -> None:
-    """Initialize parameters for scraping articles job
-
-    Args:
-        category (str): Category
-        provider (str): Provider's name
-        resource_defs (Dict[str, Any]): Resource Definitions
-    """
-    self._category = category
-    self._provider = provider
-    self._resource_defs = resource_defs
+               category: StrEnum,
+               provider: Providers,
+               scrape_articles_op_factory: BaseCategorizedOpFactory,
+               save_articles_op_factory: BaseCategorizedOpFactory,
+               save_cursor_op_factory: BaseCategorizedOpFactory,
+               resource_defs: Optional[Dict[str, Any]] = None) -> None:
+    super().__init__(category, provider, resource_defs)
+    self._scrape_articles_op_factory = scrape_articles_op_factory
+    self._save_articles_op_factory = save_articles_op_factory
+    self._save_cursor_op_factory = save_cursor_op_factory
 
   @property
-  def category(self) -> str:
-    return self._category
+  def scrape_articles_op_factory(self) -> BaseCategorizedOpFactory:
+    return self._scrape_articles_op_factory
 
   @property
-  def provider(self) -> str:
-    return self._provider
+  def save_articles_op_factory(self) -> BaseCategorizedOpFactory:
+    return self._save_articles_op_factory
 
   @property
-  def resource_defs(self) -> Dict[str, Any]:
-    return self._resource_defs
+  def save_cursor_op_factory(self) -> BaseCategorizedOpFactory:
+    return self._save_cursor_op_factory
 
-  @resource_defs.setter
-  def resource_defs(self, resource_defs: Dict[str, Any]) -> None:
-    self._resource_defs = resource_defs
-
-  @abstractmethod
   def build(self, **kwargs) -> OpDefinition:
-    pass
+    """Create category-based job for scraping (Protected method)
 
+    Returns:
+        JobDefinition: Scraping job on a specific category
+    """
 
-class BaseScrapeArticlesJobFactory(ABC):
-  """Base class for creating scraping articles job factory
+    @job(name=build_id(provider=self.provider,
+                       identifier=f"scrape_{self.category}_articles_job"),
+         resource_defs=self.resource_defs,
+         **kwargs)
+    def _job():
+      scrape_articles_op = self.scrape_articles_op_factory.create_op(
+          self.category)
+      articles: list[ArticleDetail] = scrape_articles_op()  # pylint: disable=no-value-for-parameter
+      save_articles_op = self.save_articles_op_factory.create_op(self.category)
+      save_articles_op(articles=articles)  # pylint: disable=no-value-for-parameter
+      save_cursor_op = self.save_cursor_op_factory.create_op(self.category)
+      save_cursor_op(articles=articles)  # pylint: disable=no-value-for-parameter
 
-  Args:
-      ABC: Abstract Base Classes
-  """
-
-  @abstractmethod
-  def create_job(self, category: StrEnum, **kwargs) -> JobDefinition:
-    pass
+    return _job

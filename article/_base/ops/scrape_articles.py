@@ -1,13 +1,12 @@
-from __future__ import annotations
-
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Set
+from typing import Optional, Set
 
 from dataclasses_json import DataClassJsonMixin
 from strenum import StrEnum
 
-from article._base.ops.base_op import BaseOp
+from article._base.ops.base_op import BaseCategorizedOp
+from common.config.providers import Providers
 
 
 @dataclass
@@ -24,32 +23,36 @@ class ArticleDetail(DataClassJsonMixin):  # pylint: disable=too-many-instance-at
   subcategory: str
 
 
-class BaseScrapeArticlesOp(BaseOp):
-  """Base  Operation
+class BaseScrapeArticlesOp(BaseCategorizedOp):
+  """Base Categorized Scrape Articles operation
 
-  Args:
-      ABC (_type_): _description_
+  Attributes:
+      category (StrEnum): Category
+      provider (Providers): Provider's name
+      required_resource_keys (Set[str] | None): Required Resource Keys of Dagster
+      scrape_threshold (int): Threshold (Max Page) for scraping activity
+      scrape_sleep_time (float): Delay between scrape activities
   """
 
-  @abstractmethod
-  def __init__(self,
-               category: StrEnum,
-               provider: str,
-               required_resource_keys: Set[str] | None = None) -> None:
-    """Initialize parameters for base Scrape Articles job
-
-    Args:
-        category (StrEnum): Category
-        provider (str): Provider
-        required_resource_keys (Set[str]): Required Resource Keys of Dagster resource
-    """
-    super().__init__(provider=provider,
-                     required_resource_keys=required_resource_keys)
-    self._category = category
+  def __init__(
+      self,
+      category: StrEnum,
+      provider: Providers,
+      scrape_threshold: int,
+      scrape_sleep_time: float,
+      required_resource_keys: Optional[Set[str]] = None,
+  ) -> None:
+    super().__init__(category, provider, required_resource_keys)
+    self._scrape_threshold = scrape_threshold
+    self._scrape_sleep_time = scrape_sleep_time
 
   @property
-  def category(self) -> StrEnum:
-    return self._category
+  def scrape_threshold(self) -> int:
+    return self._scrape_threshold
+
+  @property
+  def scrape_sleep_time(self) -> int:
+    return self._scrape_sleep_time
 
   @abstractmethod
   def _scrape_links(self, page_url: str) -> list[str]:

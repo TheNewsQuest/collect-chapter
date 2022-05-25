@@ -1,9 +1,7 @@
-from dagster import JobDefinition, OpDefinition, job
+from dagster import JobDefinition
 
-from article._base.jobs import BaseScrapeArticlesJobFactory
+from article._base.jobs.base_job import BaseCategorizedJobFactory
 from article._base.jobs.scrape_articles import BaseScrapeArticlesJob
-from article._base.ops.scrape_articles import ArticleDetail
-from article._base.resources.s3 import build_s3_resource
 from article.vnexpress.ops.save_articles import VNExpressSaveArticlesOpFactory
 from article.vnexpress.ops.save_cursor import VNExpressSaveCursorOpFactory
 from article.vnexpress.ops.scrape_articles import \
@@ -15,7 +13,6 @@ from article.vnexpress.resources.s3 import (vnexpress_s3_resource,
 from common.config.categories import VNExpressCategories
 from common.config.providers import Providers
 from common.errors.key import CategoryKeyError
-from common.utils.provider import build_id
 
 
 class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
@@ -29,39 +26,16 @@ class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
     super().__init__(
         category=category,
         provider=Providers.VNEXPRESS,
-    )
+        scrape_articles_op_factory=VNExpressScrapeArticlesOpFactory(),
+        save_articles_op_factory=VNExpressSaveArticlesOpFactory(),
+        save_cursor_op_factory=VNExpressSaveCursorOpFactory())
     self.resource_defs = {
         vnexpress_s3_resource_key: vnexpress_s3_resource,
         vnexpress_article_cursors_key: vnexpress_article_cursors_resource
     }
 
-  def build(self, **kwargs) -> OpDefinition:
-    """Create category-based job for scraping (Protected method)
 
-    Returns:
-        JobDefinition: Scraping job on a specific category
-    """
-    # Init factories
-    scrape_articles_op_factory = VNExpressScrapeArticlesOpFactory()
-    save_articles_op_factory = VNExpressSaveArticlesOpFactory()
-    save_cursor_op_factory = VNExpressSaveCursorOpFactory()
-
-    @job(name=build_id(provider=self.provider,
-                       identifier=f"scrape_{self.category}_articles_job"),
-         resource_defs=self.resource_defs,
-         **kwargs)
-    def _job():
-      scrape_articles_op = scrape_articles_op_factory.create_op(self.category)
-      articles: list[ArticleDetail] = scrape_articles_op()  # pylint: disable=no-value-for-parameter
-      save_articles_op = save_articles_op_factory.create_op(self.category)
-      save_articles_op(articles=articles)  # pylint: disable=no-value-for-parameter
-      save_cursor_op = save_cursor_op_factory.create_op(self.category)
-      save_cursor_op(articles=articles)  # pylint: disable=no-value-for-parameter
-
-    return _job
-
-
-class VNExpressScrapeArticlesJobFactory(BaseScrapeArticlesJobFactory):
+class VNExpressScrapeArticlesJobFactory(BaseCategorizedJobFactory):
   """Scrape Articles Job Factory for VNExpress provider
   """
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Set
+from typing import Optional, Set
 
 from strenum import StrEnum
 
@@ -20,7 +20,7 @@ class BaseSaveCursorOp(BaseOp):
   def __init__(self,
                category: StrEnum,
                provider: str,
-               required_resource_keys: Set[str] | None = None) -> None:
+               required_resource_keys: Optional[Set[str]] = None) -> None:
     super().__init__(provider, required_resource_keys)
     self._category = category
 
