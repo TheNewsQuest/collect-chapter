@@ -8,12 +8,14 @@ from article.vnexpress.ops.save_articles import VNExpressSaveArticlesOpFactory
 from article.vnexpress.ops.save_cursor import VNExpressSaveCursorOpFactory
 from article.vnexpress.ops.scrape_articles import \
     VNExpressScrapeArticlesOpFactory
-from article.vnexpress.resources.cursors import get_vnexpress_article_cursors
-from common.config import EnvVariables, ResourceKeys
+from article.vnexpress.resources.cursors import (
+    vnexpress_article_cursors_key, vnexpress_article_cursors_resource)
+from article.vnexpress.resources.s3 import (vnexpress_s3_resource,
+                                            vnexpress_s3_resource_key)
 from common.config.categories import VNExpressCategories
+from common.config.providers import Providers
 from common.errors.key import CategoryKeyError
 from common.utils.provider import build_id
-from common.utils.resource import build_resource_key
 
 
 class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
@@ -26,13 +28,11 @@ class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
   def __init__(self, category: str) -> None:
     super().__init__(
         category=category,
-        provider=EnvVariables.VNEXPRESS_PROVIDER_NAME,
+        provider=Providers.VNEXPRESS,
     )
     self.resource_defs = {
-        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX):
-            build_s3_resource(EnvVariables.VNEXPRESS_PROVIDER_NAME),
-        build_resource_key(self.provider, ResourceKeys.ARTICLE_CURSORS):
-            get_vnexpress_article_cursors
+        vnexpress_s3_resource_key: vnexpress_s3_resource,
+        vnexpress_article_cursors_key: vnexpress_article_cursors_resource
     }
 
   def build(self, **kwargs) -> OpDefinition:

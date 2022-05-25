@@ -8,6 +8,7 @@ from article._base.ops.save_articles import BaseSaveArticlesOp
 from article._base.ops.scrape_articles import ArticleDetail
 from common.config import EnvVariables
 from common.config.categories import VNExpressCategories
+from common.config.providers import Providers
 from common.config.resource_keys import ResourceKeys
 from common.utils import build_resource_key
 from common.utils.provider import build_id
@@ -25,8 +26,7 @@ class VNExpressSaveArticlesOp(BaseSaveArticlesOp):
       self,
       category: StrEnum,
   ) -> None:
-    super().__init__(category=category,
-                     provider=EnvVariables.VNEXPRESS_PROVIDER_NAME)
+    super().__init__(category=category, provider=Providers.VNEXPRESS)
     self.required_resource_keys = {
         build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX)
     }

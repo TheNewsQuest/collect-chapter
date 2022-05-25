@@ -3,7 +3,7 @@ from dagster import ResourceDefinition, resource
 from common.config import EnvVariables
 
 
-def build_s3_resource(provider: str) -> ResourceDefinition:
+def build_s3_resource(provider: str, **kwargs) -> ResourceDefinition:
   """Build a S3 Resource prefix based on specified provider
 
   Args:
@@ -13,7 +13,7 @@ def build_s3_resource(provider: str) -> ResourceDefinition:
       ResourceDefinition: Dagster's Resource definition
   """
 
-  @resource
+  @resource(**kwargs)
   def _resource() -> str:
     """[Provider]'s S3 Resource prefix of a bucket
 

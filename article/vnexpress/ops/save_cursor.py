@@ -6,7 +6,8 @@ from strenum import StrEnum
 from article._base.ops import ArticleDetail, BaseSaveCursorOp
 from article._base.ops.base_op import BaseCategorizedOpFactory
 from article.vnexpress.resources.cursors import VNExpressArticleCursors
-from common.config import EnvVariables, ResourceKeys, VNExpressCategories
+from common.config import ResourceKeys, VNExpressCategories
+from common.config.providers import Providers
 from common.errors.key import CategoryKeyError
 from common.utils.resource import build_resource_key
 from common.utils.s3 import read_dataclass_json_file_s3, write_json_file_s3
@@ -20,8 +21,7 @@ class VNExpressSaveCursorOp(BaseSaveCursorOp):
   """
 
   def __init__(self, category: StrEnum) -> None:
-    super().__init__(category=category,
-                     provider=EnvVariables.VNEXPRESS_PROVIDER_NAME)
+    super().__init__(category=category, provider=Providers.VNEXPRESS)
     self._required_resource_keys = {
         build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX)
     }

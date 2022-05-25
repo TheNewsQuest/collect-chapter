@@ -17,6 +17,7 @@ from common.config import (VNEXPRESS_CATEGORY_URL, HTMLSelectors,
 from common.config.categories import VNExpressCategories
 from common.config.date_formats import DateFormats
 from common.config.env import EnvVariables
+from common.config.providers import Providers
 from common.config.resource_keys import ResourceKeys
 from common.errors.key import CategoryKeyError
 from common.utils.content import is_restricted_content
@@ -31,7 +32,7 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
   def __init__(self, category: str) -> None:
     super().__init__(
         category=category,
-        provider=EnvVariables.VNEXPRESS_PROVIDER_NAME,
+        provider=Providers.VNEXPRESS,
     )
     self.required_resource_keys = {
         build_resource_key(self.provider, ResourceKeys.ARTICLE_CURSORS)

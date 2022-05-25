@@ -6,6 +6,8 @@ from typing import Set
 from dagster import OpDefinition
 from strenum import StrEnum
 
+from common.config.providers import Providers
+
 
 class BaseOp(ABC):
   """Base Operation
@@ -16,7 +18,7 @@ class BaseOp(ABC):
 
   @abstractmethod
   def __init__(self,
-               provider: str,
+               provider: Providers,
                required_resource_keys: Set[str] | None = None) -> None:
     """Initialize parameters for base Scrape Articles job
 

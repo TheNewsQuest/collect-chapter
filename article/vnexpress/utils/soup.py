@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 from common.config import DateFormats
 from common.config.env import EnvVariables
+from common.config.providers import Providers
 from common.config.selectors import HTMLSelectors, VNExpressSelectors
 from common.utils.date import format_datetime_str, naive_datetime_to_utc
 
