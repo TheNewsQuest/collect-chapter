@@ -80,6 +80,6 @@ class VNExpressSaveCursorOpFactory(BaseCategorizedOpFactory):
     try:
       category = VNExpressCategories[category.upper()]
     except KeyError as key_err:
-      raise CategoryKeyError(list(VNExpressCategories)) from key_err
+      raise CategoryKeyError(VNExpressCategories) from key_err
     save_cursor_op = VNExpressSaveCursorOp(category).build(**kwargs)
     return save_cursor_op

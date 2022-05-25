@@ -10,8 +10,9 @@ from common.config import EnvVariables
 from common.config.categories import VNExpressCategories
 from common.config.providers import Providers
 from common.config.resource_keys import ResourceKeys
+from common.errors.key import CategoryKeyError
 from common.utils import build_resource_key
-from common.utils.provider import build_id
+from common.utils.id import build_id
 from common.utils.s3 import write_json_file_s3
 
 
@@ -80,8 +81,6 @@ class VNExpressSaveArticlesOpFactory(BaseCategorizedOpFactory):
     try:
       category = VNExpressCategories[category.upper()]
     except KeyError:
-      get_dagster_logger().error(
-          "Specified category does not exist in operation factory.")
-      return None
+      raise CategoryKeyError(VNExpressCategories) from KeyError
     save_articles_op = VNExpressSaveArticlesOp(category).build(**kwargs)
     return save_articles_op

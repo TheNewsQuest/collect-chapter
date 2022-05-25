@@ -66,16 +66,9 @@ class BaseCategorizedJob(BaseJob):
   def category(self) -> str:
     return self._category
 
-  @property
-  def provider(self) -> str:
-    return self._provider
-
 
 class BaseCategorizedJobFactory(ABC):
   """Base factory class for creating job correlated with category
-
-  Args:
-      ABC: Abstract Base Classes
   """
 
   @abstractmethod

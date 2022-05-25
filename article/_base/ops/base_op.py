@@ -68,10 +68,6 @@ class BaseCategorizedOp(BaseOp):
   def category(self) -> str:
     return self._category
 
-  @property
-  def provider(self) -> str:
-    return self._provider
-
 
 class BaseCategorizedOpFactory(ABC):
   """Base factory class for creating operation correlated with category

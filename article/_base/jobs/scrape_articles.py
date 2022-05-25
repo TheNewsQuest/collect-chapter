@@ -9,7 +9,7 @@ from article._base.jobs.base_job import BaseCategorizedJob
 from article._base.ops.base_op import BaseCategorizedOpFactory
 from article._base.ops.scrape_articles import ArticleDetail
 from common.config.providers import Providers
-from common.utils.provider import build_id
+from common.utils.id import build_id
 
 
 class BaseScrapeArticlesJob(BaseCategorizedJob):

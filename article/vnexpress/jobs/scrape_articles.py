@@ -44,6 +44,6 @@ class VNExpressScrapeArticlesJobFactory(BaseCategorizedJobFactory):
     try:
       category = VNExpressCategories[category.upper()]
     except KeyError as key_err:
-      raise CategoryKeyError(list(VNExpressCategories)) from key_err
+      raise CategoryKeyError(VNExpressCategories) from key_err
     scrape_job = VNExpressScrapeArticlesJob(category).build(**kwargs)
     return scrape_job

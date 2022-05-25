@@ -21,8 +21,8 @@ from common.config.providers import Providers
 from common.config.resource_keys import ResourceKeys
 from common.errors.key import CategoryKeyError
 from common.utils.content import is_restricted_content
-from common.utils.date import format_datetime, format_datetime_str
-from common.utils.provider import build_id
+from common.utils.date import format_datetime
+from common.utils.id import build_id
 from common.utils.resource import build_resource_key
 
 
@@ -167,6 +167,6 @@ class VNExpressScrapeArticlesOpFactory(BaseCategorizedOpFactory):
     try:
       category = VNExpressCategories[category.upper()]
     except KeyError as key_err:
-      raise CategoryKeyError(list(VNExpressCategories)) from key_err
+      raise CategoryKeyError(VNExpressCategories) from key_err
     scrape_op = VNExpressScrapeArticlesOp(category).build(**kwargs)
     return scrape_op
