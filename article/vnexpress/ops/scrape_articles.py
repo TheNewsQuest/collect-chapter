@@ -3,7 +3,7 @@ from time import sleep, strptime
 
 import requests
 from bs4 import BeautifulSoup
-from dagster import OpDefinition, Out, get_dagster_logger, op
+from dagster import OpDefinition, get_dagster_logger, op
 
 from article._base.ops import ArticleDetail, BaseScrapeArticlesOp
 from article._base.ops.base_op import BaseCategorizedOpFactory
@@ -18,6 +18,7 @@ from common.config.categories import VNExpressCategories
 from common.config.date_formats import DateFormats
 from common.config.env import EnvVariables
 from common.config.resource_keys import ResourceKeys
+from common.errors.key import CategoryKeyError
 from common.utils.content import is_restricted_content
 from common.utils.provider import build_id
 from common.utils.resource import build_resource_key
@@ -158,16 +159,14 @@ class VNExpressScrapeArticlesOpFactory(BaseCategorizedOpFactory):
     """Creating Scrape Articles operation based on specified category
 
     Args:
-        category (StrEnum): Enum of Category
+        category (VNExpressCategories): Enum of VNExpress category
 
     Returns:
         OpDefinition: Dagster's Op Definition
     """
     try:
       category = VNExpressCategories[category.upper()]
-    except KeyError:
-      get_dagster_logger().error(
-          "Specified category does not exist in operation factory.")
-      return None
+    except KeyError as key_err:
+      raise CategoryKeyError(list(VNExpressCategories)) from key_err
     scrape_op = VNExpressScrapeArticlesOp(category).build(**kwargs)
     return scrape_op

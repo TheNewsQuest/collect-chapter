@@ -40,7 +40,7 @@ class BaseSaveArticlesOp(BaseOp):
   def category(self) -> str:
     return self._category
 
-  def build_file_uri(self, context) -> str:
+  def _build_file_uri(self, context) -> str:
     """Build File URI from Dagster resource context
 
     Args:

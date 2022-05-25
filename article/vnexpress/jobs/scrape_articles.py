@@ -1,17 +1,17 @@
-from dagster import JobDefinition, OpDefinition, get_dagster_logger, job
-from strenum import StrEnum
+from dagster import JobDefinition, OpDefinition, job
 
 from article._base.jobs import BaseScrapeArticlesJobFactory
 from article._base.jobs.scrape_articles import BaseScrapeArticlesJob
 from article._base.ops.scrape_articles import ArticleDetail
 from article._base.resources.s3 import build_s3_resource
 from article.vnexpress.ops.save_articles import VNExpressSaveArticlesOpFactory
-from article.vnexpress.ops.save_cursor import save_article_cursor_op_factory
+from article.vnexpress.ops.save_cursor import VNExpressSaveCursorOpFactory
 from article.vnexpress.ops.scrape_articles import \
     VNExpressScrapeArticlesOpFactory
 from article.vnexpress.resources.cursors import get_vnexpress_article_cursors
 from common.config import EnvVariables, ResourceKeys
 from common.config.categories import VNExpressCategories
+from common.errors.key import CategoryKeyError
 from common.utils.provider import build_id
 from common.utils.resource import build_resource_key
 
@@ -44,6 +44,7 @@ class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
     # Init factories
     scrape_articles_op_factory = VNExpressScrapeArticlesOpFactory()
     save_articles_op_factory = VNExpressSaveArticlesOpFactory()
+    save_cursor_op_factory = VNExpressSaveCursorOpFactory()
 
     @job(name=build_id(provider=self.provider,
                        identifier=f"scrape_{self.category}_articles_job"),
@@ -54,8 +55,8 @@ class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
       articles: list[ArticleDetail] = scrape_articles_op()  # pylint: disable=no-value-for-parameter
       save_articles_op = save_articles_op_factory.create_op(self.category)
       save_articles_op(articles=articles)  # pylint: disable=no-value-for-parameter
-      save_article_cursor_op = save_article_cursor_op_factory(self.category)
-      save_article_cursor_op(articles=articles)  # pylint: disable=no-value-for-parameter
+      save_cursor_op = save_cursor_op_factory.create_op(self.category)
+      save_cursor_op(articles=articles)  # pylint: disable=no-value-for-parameter
 
     return _job
 
@@ -64,12 +65,11 @@ class VNExpressScrapeArticlesJobFactory(BaseScrapeArticlesJobFactory):
   """Scrape Articles Job Factory for VNExpress provider
   """
 
-  def create_job(self, category: StrEnum, **kwargs) -> JobDefinition:
+  def create_job(self, category: VNExpressCategories,
+                 **kwargs) -> JobDefinition:
     try:
       category = VNExpressCategories[category.upper()]
-    except KeyError:
-      get_dagster_logger().error(
-          "Specified category does not exist in job factory.")
-      return None
+    except KeyError as key_err:
+      raise CategoryKeyError(list(VNExpressCategories)) from key_err
     scrape_job = VNExpressScrapeArticlesJob(category).build(**kwargs)
     return scrape_job

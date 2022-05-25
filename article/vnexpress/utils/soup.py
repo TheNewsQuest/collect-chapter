@@ -3,12 +3,14 @@
 import re
 from datetime import datetime
 
-import pytz
 from bs4 import BeautifulSoup
 
 from common.config import DateFormats
 from common.config.env import EnvVariables
 from common.config.selectors import HTMLSelectors, VNExpressSelectors
+from common.utils.date import format_datetime_str, naive_datetime_to_utc
+
+VNEXPRESS_DATETIME_REGEX = r"([a-zA-Z]+ [0-9]+, [0-9]+ \| [0-9]+:[0-9]+ [a-z]+)"
 
 
 def extract_author(soup: BeautifulSoup) -> str:
@@ -63,16 +65,15 @@ def extract_posted_at_datestr(soup: BeautifulSoup) -> str:
   """
   author_div = soup.find(HTMLSelectors.DIV, class_=VNExpressSelectors.AUTHOR)
   author_div_txt = author_div.text.replace("&nbsp", "")
-  match_datestr = re.search(
-      r"([a-zA-Z]+ [0-9]+, [0-9]+ \| [0-9]+:[0-9]+ [a-z]+)", author_div_txt)
+  match_datestr = re.search(VNEXPRESS_DATETIME_REGEX, author_div_txt)
   if match_datestr is None:
     return None
   post_datestr = author_div_txt[match_datestr.start():match_datestr.end()]
-  local_time = pytz.timezone(EnvVariables.VNEXPRESS_TIMEZONE)
-  local_datetime = local_time.localize(
-      datetime.strptime(post_datestr, DateFormats.VNEXPRESS_DATE_POSTED))
-  utc_datetime = local_datetime.astimezone(pytz.utc)
-  return utc_datetime.strftime(DateFormats.YYYYMMDDHHMMSS)
+  posted_at_date = datetime.strptime(post_datestr,
+                                     DateFormats.VNEXPRESS_DATE_POSTED)
+  utc_datetime = naive_datetime_to_utc(posted_at_date,
+                                       EnvVariables.VNEXPRESS_TIMEZONE)
+  return format_datetime_str(utc_datetime)
 
 
 def extract_thumbnail_url(soup: BeautifulSoup) -> str:
