@@ -8,15 +8,16 @@ from strenum import StrEnum
 
 
 class BaseOp(ABC):
-  """Base  Operation
+  """Base Operation
 
   Args:
       ABC : Abstract Base Classes
   """
 
   @abstractmethod
-  def __init__(self, provider: str,
-               required_resource_keys: Set[str] | None) -> None:
+  def __init__(self,
+               provider: str,
+               required_resource_keys: Set[str] | None = None) -> None:
     """Initialize parameters for base Scrape Articles job
 
     Args:
@@ -34,6 +35,10 @@ class BaseOp(ABC):
   @property
   def required_resource_keys(self) -> Set[str]:
     return self._required_resource_keys
+
+  @required_resource_keys.setter
+  def required_resource_keys(self, required_resource_keys: Set[str]) -> None:
+    self._required_resource_keys = required_resource_keys
 
   @abstractmethod
   def build(self, **kwargs) -> OpDefinition:

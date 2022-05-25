@@ -14,7 +14,7 @@ from common.config import VNExpressCategories
 
 @repository
 def article_repository() -> RepositoryDefinition:
-  """Repository of VNExpress scraping jobs, schedules
+  """Repository of VNExpress scraping jobs, schedules, sensors.
 
   Returns:
       RepositoryDefinition: Repository containing all jobs, schedules, sensors.

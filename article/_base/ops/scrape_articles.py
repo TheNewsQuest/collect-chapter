@@ -32,8 +32,10 @@ class BaseScrapeArticlesOp(BaseOp):
   """
 
   @abstractmethod
-  def __init__(self, category: StrEnum, provider: str,
-               required_resource_keys: Set[str] | None) -> None:
+  def __init__(self,
+               category: StrEnum,
+               provider: str,
+               required_resource_keys: Set[str] | None = None) -> None:
     """Initialize parameters for base Scrape Articles job
 
     Args:
@@ -46,7 +48,7 @@ class BaseScrapeArticlesOp(BaseOp):
     self._category = category
 
   @property
-  def category(self) -> str:
+  def category(self) -> StrEnum:
     return self._category
 
   @abstractmethod

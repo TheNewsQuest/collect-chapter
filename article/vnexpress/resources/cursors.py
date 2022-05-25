@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Optional
 
@@ -8,6 +6,7 @@ from dataclasses_json import DataClassJsonMixin
 
 from common.config.env import EnvVariables
 from common.config.resource_keys import ResourceKeys
+from common.utils.resource import build_resource_key
 from common.utils.s3 import read_dataclass_json_file_s3, write_json_file_s3
 
 
@@ -21,9 +20,13 @@ class VNExpressArticleCursors(DataClassJsonMixin):
   world_cursor: Optional[str] = None
 
 
-@resource(required_resource_keys={str(ResourceKeys.S3_RESOURCE_PREFIX)})
-def get_article_cursors(context) -> VNExpressArticleCursors:
-  """Get Article Cursors of all categories
+@resource(
+    required_resource_keys={
+        build_resource_key(EnvVariables.VNEXPRESS_PROVIDER_NAME,
+                           ResourceKeys.S3_RESOURCE_PREFIX)
+    })
+def get_vnexpress_article_cursors(context) -> VNExpressArticleCursors:
+  """Get Article Cursors of all categories in VNExpress
 
   Args:
       context: Dagster Context object
@@ -35,7 +38,11 @@ def get_article_cursors(context) -> VNExpressArticleCursors:
       ArticleCursors: Article cursors data
   """
   cursors = VNExpressArticleCursors()
-  uri = f"{context.resources.s3_resource_prefix}/{EnvVariables.ARTICLE_CURSORS_FILENAME}"
+  s3_resource_prefix = getattr(
+      context.resources,
+      build_resource_key(EnvVariables.VNEXPRESS_PROVIDER_NAME,
+                         ResourceKeys.S3_RESOURCE_PREFIX))
+  uri = f"{s3_resource_prefix}/{EnvVariables.ARTICLE_CURSORS_FILENAME}"
   try:
     cursors = read_dataclass_json_file_s3(dataclass=VNExpressArticleCursors,
                                           uri=uri,

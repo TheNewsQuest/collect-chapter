@@ -3,10 +3,15 @@ from time import sleep, strptime
 
 import requests
 from bs4 import BeautifulSoup
-from dagster import OpDefinition, get_dagster_logger, op
+from dagster import OpDefinition, Out, get_dagster_logger, op
 
 from article._base.ops import ArticleDetail, BaseScrapeArticlesOp
 from article._base.ops.base_op import BaseCategorizedOpFactory
+from article.vnexpress.utils import (extract_author, extract_category,
+                                     extract_lead_post_detail_row,
+                                     extract_posted_at_datestr,
+                                     extract_subcategory, extract_thumbnail_url,
+                                     extract_title)
 from common.config import (VNEXPRESS_CATEGORY_URL, HTMLSelectors,
                            VNExpressSelectors)
 from common.config.categories import VNExpressCategories
@@ -14,11 +19,8 @@ from common.config.date_formats import DateFormats
 from common.config.env import EnvVariables
 from common.config.resource_keys import ResourceKeys
 from common.utils.content import is_restricted_content
-from common.utils.provider import build_provider_id
-from common.utils.soup import (extract_author, extract_category,
-                               extract_lead_post_detail_row,
-                               extract_posted_at_datestr, extract_subcategory,
-                               extract_thumbnail_url, extract_title)
+from common.utils.provider import build_id
+from common.utils.resource import build_resource_key
 
 
 class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
@@ -26,9 +28,13 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
   """
 
   def __init__(self, category: str) -> None:
-    super().__init__(category=category,
-                     provider=EnvVariables.VNEXPRESS_PROVIDER_NAME,
-                     required_resource_keys={str(ResourceKeys.ARTICLE_CURSORS)})
+    super().__init__(
+        category=category,
+        provider=EnvVariables.VNEXPRESS_PROVIDER_NAME,
+    )
+    self.required_resource_keys = {
+        build_resource_key(self.provider, ResourceKeys.ARTICLE_CURSORS)
+    }
 
   def _scrape_links(self, page_url: str) -> list[str]:
     """Scrape list of VNExpress links from a page.
@@ -91,10 +97,14 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
                          subcategory=subcategory)
 
   def build(self, **kwargs) -> OpDefinition:
-    # Build op process
-    @op(name=build_provider_id(
-        provider=self.provider,
-        identifier=f"scrape_{self.category}_articles_op"),
+    """Build Scrape Articles operation
+
+    Returns:
+        OpDefinition: Dagster's Op Definition
+    """
+
+    @op(name=build_id(provider=self.provider,
+                      identifier=f"scrape_{self.category}_articles_op"),
         required_resource_keys=self.required_resource_keys,
         **kwargs)
     def _op(context) -> list[ArticleDetail]:
@@ -106,15 +116,18 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
       # Extract config from env vars
       scrape_threshold = int(EnvVariables.PAGE_SCRAPING_THRESHOLD)
       scrape_sleep_time = float(EnvVariables.SCRAPE_SLEEP_TIME)
+      article_cursors_resource = getattr(
+          context.resources,
+          build_resource_key(self.provider, ResourceKeys.ARTICLE_CURSORS))
       # Get article's cursor by category
-      article_cursor: str = getattr(context.resources.article_cursors,
+      article_cursor: str = getattr(article_cursors_resource,
                                     f"{self.category}_cursor")
       cursor_dt: datetime = None if article_cursor is None else strptime(
           article_cursor, DateFormats.YYYYMMDDHHMMSS)
       get_dagster_logger().info(
           f"Latest Datetime of {self.category}'s cursor: {cursor_dt}")
       # Scrape articles per page
-      articles = []
+      articles: list[ArticleDetail] = []
       for page in range(1, scrape_threshold + 1):
         scrape_url = f"{VNEXPRESS_CATEGORY_URL[self.category]}/page/{page}"
         links = self._scrape_links(scrape_url)
@@ -135,10 +148,21 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
 
 
 class VNExpressScrapeArticlesOpFactory(BaseCategorizedOpFactory):
-  """VNExpress Scrape Articles Operation factory
+  """Op Factory for creating Scrape Articles Op of specified category
+
+  Args:
+      BaseCategorizedOpFactory: Base Categorized Op Factory
   """
 
   def create_op(self, category: VNExpressCategories, **kwargs) -> OpDefinition:
+    """Creating Scrape Articles operation based on specified category
+
+    Args:
+        category (StrEnum): Enum of Category
+
+    Returns:
+        OpDefinition: Dagster's Op Definition
+    """
     try:
       category = VNExpressCategories[category.upper()]
     except KeyError:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
@@ -11,8 +13,10 @@ class BaseScrapeArticlesJob(ABC):
       ABC: Abstract Base Classes
   """
 
-  def __init__(self, category: str, provider: str,
-               resource_defs: Dict[str, Any]) -> None:
+  def __init__(self,
+               category: str,
+               provider: str,
+               resource_defs: Dict[str, Any] | None = None) -> None:
     """Initialize parameters for scraping articles job
 
     Args:
@@ -35,6 +39,10 @@ class BaseScrapeArticlesJob(ABC):
   @property
   def resource_defs(self) -> Dict[str, Any]:
     return self._resource_defs
+
+  @resource_defs.setter
+  def resource_defs(self, resource_defs: Dict[str, Any]) -> None:
+    self._resource_defs = resource_defs
 
   @abstractmethod
   def build(self, **kwargs) -> OpDefinition:

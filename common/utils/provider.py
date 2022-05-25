@@ -1,4 +1,4 @@
-def build_provider_id(provider: str, identifier: str) -> str:
+def build_id(provider: str, identifier: str) -> str:
   """Build Identifier/Name for Job, Ops, etc. for specified provider
 
   Args:

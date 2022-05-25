@@ -1,0 +1,1 @@
+from article._base.resources.s3 import build_s3_resource

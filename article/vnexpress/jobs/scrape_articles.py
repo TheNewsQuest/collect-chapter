@@ -3,16 +3,17 @@ from strenum import StrEnum
 
 from article._base.jobs import BaseScrapeArticlesJobFactory
 from article._base.jobs.scrape_articles import BaseScrapeArticlesJob
-from article.vnexpress.ops.save_article_cursor import \
-    save_article_cursor_op_factory
-from article.vnexpress.ops.save_articles import save_articles_s3_op_factory
+from article._base.ops.scrape_articles import ArticleDetail
+from article._base.resources.s3 import build_s3_resource
+from article.vnexpress.ops.save_articles import VNExpressSaveArticlesOpFactory
+from article.vnexpress.ops.save_cursor import save_article_cursor_op_factory
 from article.vnexpress.ops.scrape_articles import \
     VNExpressScrapeArticlesOpFactory
-from article.vnexpress.resources.article_cursors import get_article_cursors
-from article.vnexpress.resources.s3_prefix import s3_resource_prefix
+from article.vnexpress.resources.cursors import get_vnexpress_article_cursors
 from common.config import EnvVariables, ResourceKeys
 from common.config.categories import VNExpressCategories
-from common.utils.provider import build_provider_id
+from common.utils.provider import build_id
+from common.utils.resource import build_resource_key
 
 
 class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
@@ -26,10 +27,13 @@ class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
     super().__init__(
         category=category,
         provider=EnvVariables.VNEXPRESS_PROVIDER_NAME,
-        resource_defs={
-            str(ResourceKeys.S3_RESOURCE_PREFIX): s3_resource_prefix,
-            str(ResourceKeys.ARTICLE_CURSORS): get_article_cursors
-        })
+    )
+    self.resource_defs = {
+        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX):
+            build_s3_resource(EnvVariables.VNEXPRESS_PROVIDER_NAME),
+        build_resource_key(self.provider, ResourceKeys.ARTICLE_CURSORS):
+            get_vnexpress_article_cursors
+    }
 
   def build(self, **kwargs) -> OpDefinition:
     """Create category-based job for scraping (Protected method)
@@ -39,17 +43,17 @@ class VNExpressScrapeArticlesJob(BaseScrapeArticlesJob):
     """
     # Init factories
     scrape_articles_op_factory = VNExpressScrapeArticlesOpFactory()
+    save_articles_op_factory = VNExpressSaveArticlesOpFactory()
 
-    @job(name=build_provider_id(
-        provider=self.provider,
-        identifier=f"scrape_{self.category}_articles_job"),
+    @job(name=build_id(provider=self.provider,
+                       identifier=f"scrape_{self.category}_articles_job"),
          resource_defs=self.resource_defs,
          **kwargs)
     def _job():
       scrape_articles_op = scrape_articles_op_factory.create_op(self.category)
-      articles = scrape_articles_op()  # pylint: disable=no-value-for-parameter
-      save_articles_s3_op = save_articles_s3_op_factory(self.category)
-      save_articles_s3_op(articles=articles)  # pylint: disable=no-value-for-parameter
+      articles: list[ArticleDetail] = scrape_articles_op()  # pylint: disable=no-value-for-parameter
+      save_articles_op = save_articles_op_factory.create_op(self.category)
+      save_articles_op(articles=articles)  # pylint: disable=no-value-for-parameter
       save_article_cursor_op = save_article_cursor_op_factory(self.category)
       save_article_cursor_op(articles=articles)  # pylint: disable=no-value-for-parameter
 

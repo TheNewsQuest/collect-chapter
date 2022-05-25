@@ -1,10 +1,12 @@
+## Helper functions ##
+
 import re
 from datetime import datetime
 
 import pytz
 from bs4 import BeautifulSoup
 
-from common.config.date_formats import DateFormats
+from common.config import DateFormats
 from common.config.env import EnvVariables
 from common.config.selectors import HTMLSelectors, VNExpressSelectors
 
