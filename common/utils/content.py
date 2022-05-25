@@ -1,7 +1,7 @@
 from bs4 import ResultSet
 
-from common.constants import VNEXPRESS_COVID19_URL
-from common.enums.selectors import HTMLSelectors, VNExpressSelectors
+from common.config import VNEXPRESS_COVID19_URL
+from common.config.selectors import HTMLSelectors, VNExpressSelectors
 
 
 def is_icon(div: ResultSet, icon: str) -> bool:
