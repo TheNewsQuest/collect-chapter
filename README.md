@@ -6,7 +6,7 @@ In this chapter, a pipeline is built in order to gather all the essential items 
 
 ## Source
 
-The data will be collected from various newsletter sources, including different genres.
+The data will be collected from popular newsletter sources like VNExpress or CBSNews, including different categories.
 
 ## Frequency
 
@@ -27,7 +27,13 @@ pip install -r requirements.txt
 You can run project in different ways either using the Dagster CLI or the Dagster UI (Dagit). In this project, the Dagit way is preferred as interactions with jobs are so intuitive and straightforward on the UI.
 
 1. Run command `dagit -p 3141`
-2. Now you can access Dagit via `localhost:3141`
+2. Now you can access Dagit (UI) via `localhost:3141`
+
+In order to run daemon for running schedules and sensors, a Dagster Daemon is required for the process. To start the daemon:
+
+1. Create a dagster_home folder using the command `mkdir -p dagster_home`
+2. Specify $DAGSTER_HOME environment variable to the recently created `dagster_home` folder in your shell: `export $DAGSTER_HOME=[dagster_home's path]`
+3. Having set the path, now we create a YML file in the `dagster_home` folder for further config by the command `touch dagster_home/dagster.yaml`
 
 ## Contribution Guide
 
