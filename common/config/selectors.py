@@ -23,6 +23,8 @@ class VNExpressSelectors(StrEnum):
   AUTHOR = "author"
   ITEM_MENU_LEFT_ACTIVE = "item_menu_left active"
   FOLDER_NAME_DETAIL = "folder_name_detail"
+  ARTICLE_BODY_PARAGRAPH = "article-body__element__2p5pI"
+  ARTICLE_HEADER_DIV = "article-header__heading__15OpQ"
   # Icons
   ICON_PHOTO = "ic-photo"
   ICON_VIDEO = "ic-video"
