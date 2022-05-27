@@ -54,18 +54,19 @@ class BaseScrapeArticlesJob(BaseCategorizedJob):
     Returns:
         JobDefinition: Scraping job on a specific category
     """
+    scrape_articles_op = self.scrape_articles_op_factory.create_op(
+        self.category)
+    save_articles_op = self.save_articles_op_factory.create_op(self.category)
+    save_cursor_op = self.save_cursor_op_factory.create_op(self.category)
 
     @job(name=build_id(provider=self.provider,
                        identifier=f"scrape_{self.category}_articles_job"),
          resource_defs=self.resource_defs,
          **kwargs)
     def _job():
-      scrape_articles_op = self.scrape_articles_op_factory.create_op(
-          self.category)
-      articles: list[ArticleDetail] = scrape_articles_op()  # pylint: disable=no-value-for-parameter
-      save_articles_op = self.save_articles_op_factory.create_op(self.category)
-      save_articles_op(articles=articles)  # pylint: disable=no-value-for-parameter
-      save_cursor_op = self.save_cursor_op_factory.create_op(self.category)
-      save_cursor_op(articles=articles)  # pylint: disable=no-value-for-parameter
+      # pylint: disable=no-value-for-parameter
+      articles: list[ArticleDetail] = scrape_articles_op()
+      save_articles_op(articles=articles)
+      save_cursor_op(articles=articles)
 
     return _job

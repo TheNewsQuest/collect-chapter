@@ -5,6 +5,7 @@ load_dotenv()
 
 from dagster import RepositoryDefinition, repository
 
+from article.vnexpress.jobs.save_quests import VNExpressSaveQuestsJobFactory
 from article.vnexpress.jobs.scrape_articles import \
     VNExpressScrapeArticlesJobFactory
 from article.vnexpress.schedules.scrape_articles_schedule import \
@@ -22,10 +23,13 @@ def article_repository() -> RepositoryDefinition:
       RepositoryDefinition: Repository containing all jobs, schedules, sensors.
   """
   vnexpress_scrape_articles_job_factory = VNExpressScrapeArticlesJobFactory()
+  vnexpress_save_quests_job_factory = VNExpressSaveQuestsJobFactory()
   # Job definitions
   jobs = [
-      vnexpress_scrape_articles_job_factory.create_job(category)
-      for category in VNExpressCategories
+      *(vnexpress_scrape_articles_job_factory.create_job(category)
+        for category in VNExpressCategories),
+      *(vnexpress_save_quests_job_factory.create_job(category)
+        for category in VNExpressCategories)
   ]
   # Schedule definitions
   vnexpress_scrape_articles_schedule_factory = VNExpressScrapeArticlesScheduleFactory(
