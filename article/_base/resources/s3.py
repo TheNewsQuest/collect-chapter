@@ -4,7 +4,7 @@ from common.config import EnvVariables
 
 
 def build_s3_resource(provider: str, **kwargs) -> ResourceDefinition:
-  """Build a S3 Resource prefix based on specified provider
+  """Build a S3 Resource URI based on specified provider
 
   Args:
       provider (str): Provider
@@ -15,7 +15,7 @@ def build_s3_resource(provider: str, **kwargs) -> ResourceDefinition:
 
   @resource(**kwargs)
   def _resource() -> str:
-    """[Provider]'s S3 Resource prefix of a bucket
+    """[Provider]'s S3 Resource URI of a bucket
 
     Returns:
         str: S3 Bucket prefix

@@ -25,7 +25,7 @@ class VNExpressSaveArticlesOp(BaseSaveArticlesOp):
   ) -> None:
     super().__init__(category=category, provider=Providers.VNEXPRESS)
     self.required_resource_keys = {
-        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX)
+        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI)
     }
 
 

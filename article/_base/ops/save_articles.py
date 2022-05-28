@@ -54,7 +54,7 @@ class BaseSaveArticlesOp(BaseCategorizedOp):
                                         DateFormats.YYYYMMDD)
     s3_resource = getattr(
         context.resources,
-        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX))
+        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI))
     file_uri = f"{s3_resource}/{self.category}/{today_datestr}.json"
     return file_uri
 

@@ -1,4 +1,3 @@
-import enum
 from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
@@ -21,6 +20,7 @@ from common.config.providers import Providers
 from common.config.resource_keys import ResourceKeys
 from common.utils.date import get_today_utc
 from common.utils.id import build_id
+from common.utils.resource import build_resource_key
 from common.utils.s3 import read_dataclass_json_file_s3
 
 
@@ -81,12 +81,14 @@ class BaseSaveQuestsOp(BaseCategorizedOp):
     super().__init__(
         category=category,
         provider=provider,
-        required_resource_keys=(required_resource_keys
-                                if required_resource_keys is not None else {
-                                    str(ResourceKeys.ALCHEMY_CLIENT),
-                                    str(ResourceKeys.DUTY_MONGO_CLIENT),
-                                }))
-    self._config_schema = {"file_uri": str}
+    )
+    # NOTE: Specifying required resource keys will override the default init ones!
+    self._required_resource_keys = required_resource_keys if required_resource_keys is not None else {
+        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI),
+        str(ResourceKeys.ALCHEMY_CLIENT),
+        str(ResourceKeys.DUTY_MONGO_CLIENT),
+    }
+    self._config_schema = {"filename": str}
 
   def build(self, **kwargs) -> OpDefinition:
     """Build a base Save Quest operation
@@ -105,15 +107,19 @@ class BaseSaveQuestsOp(BaseCategorizedOp):
     def _op(context: OpExecutionContext):
       """Save Quests operation
         Args (context):
-          file_uri: Detected new file's URI on S3 after scraping event
+          filename: Detected new file's URI on S3 after scraping event
       """
-      file_uri = context.op_config["file_uri"]
+      filename = context.op_config["filename"]
+      s3_resource = getattr(
+          context.resources,
+          build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI))
+      uri = f"{s3_resource}/{self.category}/{filename}"
       alchemy: AlchemyClient = getattr(context.resources,
                                        ResourceKeys.ALCHEMY_CLIENT)
       duty_db: Database = getattr(context.resources,
                                   ResourceKeys.DUTY_MONGO_CLIENT)
       articles: list[ArticleDetail] = read_dataclass_json_file_s3(ArticleDetail,
-                                                                  file_uri,
+                                                                  uri,
                                                                   many=True)
       article_count = len(articles)
       if article_count == 0:
@@ -134,7 +140,7 @@ class BaseSaveQuestsOp(BaseCategorizedOp):
       for idx, article in enumerate(articles):
         quests: list[GeneratedQuest] = alchemy.generate_quests(article.content)
         get_dagster_logger().info(
-            f"({idx}) Generated {len(quests)} quests for article at: {article.link}"
+            f"Generated {len(quests)} quests for article at: {article.link} ({idx+1})"
         )
         quest_schemas: list[QuestSchema] = [
             standardize_quest(quest) for quest in quests

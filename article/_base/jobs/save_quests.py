@@ -7,9 +7,11 @@ from article._base.jobs.base_job import BaseCategorizedJob
 from article._base.ops.base_op import BaseCategorizedOpFactory
 from article._base.resources.alchemy import get_alchemy_client
 from article._base.resources.duty_mongo import get_duty_mongo_client
+from article._base.resources.s3 import build_s3_resource
 from common.config.providers import Providers
 from common.config.resource_keys import ResourceKeys
 from common.utils.id import build_id
+from common.utils.resource import build_resource_key
 
 
 class BaseSaveQuestsJob(BaseCategorizedJob):
@@ -24,10 +26,16 @@ class BaseSaveQuestsJob(BaseCategorizedJob):
     super().__init__(
         category,
         provider,
-        resource_defs=(resource_defs if resource_defs is not None else {
-            str(ResourceKeys.ALCHEMY_CLIENT): get_alchemy_client,
-            str(ResourceKeys.DUTY_MONGO_CLIENT): get_duty_mongo_client,
-        }))
+    )
+    # NOTE: Specifying resource_defs will override the default init ones
+    self._resource_defs = resource_defs if resource_defs is not None else {
+        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI):
+            build_s3_resource(self.provider),
+        str(ResourceKeys.ALCHEMY_CLIENT):
+            get_alchemy_client,
+        str(ResourceKeys.DUTY_MONGO_CLIENT):
+            get_duty_mongo_client,
+    }
     self._save_quests_op_factory = save_quests_op_factory
 
   @property
