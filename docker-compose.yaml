@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:13
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=collect
+
+  article:
+    build:
+      context: .
+      dockerfile: Dockerfile.article
+    container_name: article
+    image: bietdoikiem/collect-article
+    restart: always
+    env_file:
+      - .env.local
+    environment:
+      - DAGSTER_POSTGRES_USER=root
+      - DAGSTER_POSTGRES_PASSWORD=root
+      - DAGSTER_POSTGRES_DB=collect
+      - DAGSTER_CURRENT_IMAGE=bietdoikiem/collect-article
+
+  # This service runs dagit, which loads your user code from the user code container.
+  # Since our instance uses the QueuedRunCoordinator, any runs submitted from dagit will be put on
+  # a queue and later dequeued and launched by dagster-daemon.
+  dagit:
+    build:
+      context: .
+      dockerfile: Dockerfile.dagster
+    entrypoint:
+      - dagit
+      - -h
+      - '0.0.0.0'
+      - -p
+      - '3000'
+      - -w
+      - workspace.yaml
+    container_name: dagit
+    expose:
+      - '3000'
+    ports:
+      - '3141:3000'
+    environment:
+      - DAGSTER_POSTGRES_USER=root
+      - DAGSTER_POSTGRES_PASSWORD=root
+      - DAGSTER_POSTGRES_DB=collect
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - postgresql
+      - article
+
+  # This service runs the dagster-daemon process, which is responsible for taking runs
+  # off of the queue and launching them, as well as creating runs from schedules or sensors.
+  daemon:
+    build:
+      context: .
+      dockerfile: Dockerfile.dagster
+    entrypoint:
+      - dagster-daemon
+      - run
+    container_name: daemon
+    restart: on-failure
+    environment:
+      - DAGSTER_POSTGRES_USER=root
+      - DAGSTER_POSTGRES_PASSWORD=root
+      - DAGSTER_POSTGRES_DB=collect
+    volumes: # Make docker client accessible so we can launch containers using host docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - postgresql
+      - article
+
+networks:
+  default:
+    external:
+      name: thenewsquest-network

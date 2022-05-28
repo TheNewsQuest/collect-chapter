@@ -1,7 +1,9 @@
 # pylint: disable=wrong-import-position
+import os
+
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=False)
 
 from dagster import RepositoryDefinition, SensorDefinition, repository
 from strenum import StrEnum
