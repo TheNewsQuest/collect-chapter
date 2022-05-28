@@ -10,8 +10,7 @@ from common.utils.s3 import read_dataclass_json_file_s3, write_json_file_s3
 def build_article_cursors_resource(provider: str,
                                    dataclass_: DataClassJsonMixin, **kwargs):
 
-  s3_resource_key = build_resource_key(provider,
-                                       ResourceKeys.S3_RESOURCE_PREFIX)
+  s3_resource_key = build_resource_key(provider, ResourceKeys.S3_RESOURCE_URI)
 
   @resource(required_resource_keys={s3_resource_key}, **kwargs)
   def _resource(context) -> DataClassJsonMixin:

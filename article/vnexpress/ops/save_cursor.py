@@ -23,7 +23,7 @@ class VNExpressSaveCursorOp(BaseSaveCursorOp):
   def __init__(self, category: StrEnum) -> None:
     super().__init__(category=category, provider=Providers.VNEXPRESS)
     self._required_resource_keys = {
-        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX)
+        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI)
     }
 
   def build(self, **kwargs) -> OpDefinition:

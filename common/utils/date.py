@@ -50,3 +50,12 @@ def format_datetime(
       str: Datetime object
   """
   return strptime(datetime_str, str_format)
+
+
+def get_today_utc() -> datetime:
+  """Get Today datetime object in UTC
+
+  Returns:
+      datetime: Today datetime object
+  """
+  return datetime.now(tz=pytz.utc)

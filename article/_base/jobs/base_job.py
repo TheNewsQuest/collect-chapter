@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Set
 
-from dagster import JobDefinition, OpDefinition
+from dagster import JobDefinition
 from strenum import StrEnum
 
 from common.config.providers import Providers
@@ -41,7 +41,7 @@ class BaseJob(ABC):
     self._resource_defs = resource_defs
 
   @abstractmethod
-  def build(self, **kwargs) -> OpDefinition:
+  def build(self, **kwargs) -> JobDefinition:
     pass
 
 

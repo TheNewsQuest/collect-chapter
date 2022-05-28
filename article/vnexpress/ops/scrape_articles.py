@@ -85,10 +85,17 @@ class VNExpressScrapeArticlesOp(BaseScrapeArticlesOp):
     category = extract_category(soup)
     subcategory = extract_subcategory(soup)
     paragraphs = [lead_post_detail]  # Init paragraphs content
-    p_tags = soup.find_all(HTMLSelectors.PARAGRAPH,
-                           class_=VNExpressSelectors.NORMAL_PARAGRAPH)
-    for p_tag in p_tags:
-      paragraphs.append(p_tag.text)
+    article_body_p_tags = soup.find_all(
+        HTMLSelectors.PARAGRAPH,
+        class_=VNExpressSelectors.ARTICLE_BODY_PARAGRAPH)
+    if len(article_body_p_tags) > 0:
+      for p_tag in article_body_p_tags:
+        paragraphs.append(p_tag.text)
+    else:
+      p_tags = soup.find_all(HTMLSelectors.PARAGRAPH,
+                             class_=VNExpressSelectors.NORMAL_PARAGRAPH)
+      for p_tag in p_tags:
+        paragraphs.append(p_tag.text)
     content = '\n'.join(paragraphs)
     return ArticleDetail(title=title,
                          thumbnail_url=thumbnail_url,

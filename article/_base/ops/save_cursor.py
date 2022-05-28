@@ -4,13 +4,13 @@ from typing import Optional, Set
 
 from strenum import StrEnum
 
-from article._base.ops import BaseOp
+from article._base.ops.base_op import BaseCategorizedOp
 from common.config.env import EnvVariables
 from common.config.resource_keys import ResourceKeys
 from common.utils.resource import build_resource_key
 
 
-class BaseSaveCursorOp(BaseOp):
+class BaseSaveCursorOp(BaseCategorizedOp):
   """Base Save Cursor Operation
 
   Args:
@@ -21,12 +21,7 @@ class BaseSaveCursorOp(BaseOp):
                category: StrEnum,
                provider: str,
                required_resource_keys: Optional[Set[str]] = None) -> None:
-    super().__init__(provider, required_resource_keys)
-    self._category = category
-
-  @property
-  def category(self) -> StrEnum:
-    return self._category
+    super().__init__(category, provider, required_resource_keys)
 
   def _build_file_uri(self, context) -> str:
     """Build cursors file URI on S3 Bucket
@@ -39,6 +34,6 @@ class BaseSaveCursorOp(BaseOp):
     """
     s3_resource = getattr(
         context.resources,
-        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX))
+        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI))
     file_uri = f"{s3_resource}/{EnvVariables.ARTICLE_CURSORS_FILENAME}"
     return file_uri

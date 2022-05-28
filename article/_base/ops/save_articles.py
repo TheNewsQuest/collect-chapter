@@ -5,15 +5,20 @@ from datetime import datetime
 from typing import Optional, Set
 
 import pytz
+from dagster import In, OpDefinition, get_dagster_logger, op
 from strenum import StrEnum
 
-from article._base.ops import BaseOp
+from article._base.ops.base_op import BaseCategorizedOp
+from article._base.ops.scrape_articles import ArticleDetail
 from common.config import DateFormats
 from common.config.resource_keys import ResourceKeys
+from common.utils.date import format_datetime_str
+from common.utils.id import build_id
 from common.utils.resource import build_resource_key
+from common.utils.s3 import write_json_file_s3
 
 
-class BaseSaveArticlesOp(BaseOp):
+class BaseSaveArticlesOp(BaseCategorizedOp):
   """Base Save Articles operation class
 
   Args:
@@ -32,16 +37,12 @@ class BaseSaveArticlesOp(BaseOp):
         provider (str): Provider
         required_resource_keys (Set[str]): Required Resource Keys of Dagster resource
     """
-    super().__init__(provider=provider,
+    super().__init__(category=category,
+                     provider=provider,
                      required_resource_keys=required_resource_keys)
-    self._category = category
 
-  @property
-  def category(self) -> str:
-    return self._category
-
-  def _build_file_uri(self, context) -> str:
-    """Build File URI from Dagster resource context
+  def _build_save_file_uri(self, context) -> str:
+    """Build Save File URI from Dagster resource context
 
     Args:
         context: Dagster context
@@ -49,6 +50,36 @@ class BaseSaveArticlesOp(BaseOp):
     Returns:
         str: File's URI
     """
-    today_datestr = datetime.now(tz=pytz.utc).strftime(DateFormats.YYYYMMDD)
-    file_uri = f"{getattr(context.resources, build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_PREFIX))}/{self.category}/{today_datestr}.json"
+    today_datestr = format_datetime_str(datetime.now(tz=pytz.utc),
+                                        DateFormats.YYYYMMDD)
+    s3_resource = getattr(
+        context.resources,
+        build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI))
+    file_uri = f"{s3_resource}/{self.category}/{today_datestr}.json"
     return file_uri
+
+  def build(self, **kwargs) -> OpDefinition:
+    """Build Save Articles operation for specified category
+
+    Returns:
+        OpDefinition: Save to S3 Operation
+    """
+
+    @op(name=build_id(provider=self.provider,
+                      identifier=f"save_{self.category}_articles_s3_op"),
+        required_resource_keys=self.required_resource_keys,
+        ins={"articles": In(dagster_type=list[ArticleDetail])},
+        **kwargs)
+    def _op(context, articles: list[ArticleDetail]):
+      """Save list of articles to S3 bucket operation
+
+      Args:
+          context: Dagster context object
+          articles (list[ArticleDetail]): List of article details
+      """
+      file_uri = self._build_save_file_uri(context)
+      article_details = ArticleDetail.schema().dump(articles, many=True)
+      write_json_file_s3(article_details, file_uri)
+      get_dagster_logger().info(f"Save {file_uri} successfully.")
+
+    return _op
