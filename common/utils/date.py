@@ -1,5 +1,4 @@
 from datetime import datetime
-from time import strptime
 
 import pytz
 
@@ -49,7 +48,7 @@ def format_datetime(
   Returns:
       str: Datetime object
   """
-  return strptime(datetime_str, str_format)
+  return datetime.strptime(datetime_str, str_format)
 
 
 def get_today_utc() -> datetime:
