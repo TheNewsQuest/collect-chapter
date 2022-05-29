@@ -1,4 +1,5 @@
 .env
+.env.development
 .gitignore
 .pylintrc
 .example.html
