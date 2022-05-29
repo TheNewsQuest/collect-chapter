@@ -19,14 +19,12 @@ class VNExpressSaveQuestsSensor(BaseSaveQuestsSensor):
       self,
       category: StrEnum,
   ) -> None:
-    super().__init__(
-        category=category,
-        provider=Providers.VNEXPRESS,
-        save_quests_job_factory=VNExpressSaveQuestsJobFactory(),
-        save_quests_op_factory=VNExpressSaveQuestsOpFactory(),
-        default_status=DefaultSensorStatus.STOPPED
-        if EnvVariables.APP_ENV == "local" else DefaultSensorStatus.RUNNING,
-        minimum_interval_seconds=60)
+    super().__init__(category=category,
+                     provider=Providers.VNEXPRESS,
+                     save_quests_job_factory=VNExpressSaveQuestsJobFactory(),
+                     save_quests_op_factory=VNExpressSaveQuestsOpFactory(),
+                     default_status=DefaultSensorStatus.RUNNING,
+                     minimum_interval_seconds=60)
 
 
 class VNExpressSaveQuestsSensorFactory(BaseCategorizedSensorFactory):
