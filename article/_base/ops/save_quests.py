@@ -172,7 +172,7 @@ class BaseSaveQuestsOp(BaseCategorizedOp):
       try:
         duty_db.articles.bulk_write(insert_requests, ordered=False)
       except BulkWriteError as bwe:
-        error_count = len(bwe.details.writeErrors)
+        error_count = len(bwe.details["writeErrors"])
         get_dagster_logger().error(bwe.details)
       get_dagster_logger().info(
           f"Successfully inserted {article_count-error_count} documents to 'articles' collection."
