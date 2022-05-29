@@ -1,0 +1,6 @@
+load_from:
+  # Each entry here corresponds to a service in the docker-compose file that exposes user code.
+  - grpc_server:
+      host: article
+      port: 4033
+      location_name: 'article'

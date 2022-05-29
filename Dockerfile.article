@@ -1,0 +1,25 @@
+FROM python:3.9-slim
+
+# Checkout and install dagster libraries needed to run the gRPC server
+# exposing your repository to dagit and dagster-daemon, and to load the DagsterInstance
+
+COPY requirements.txt /tmp/
+
+RUN pip install -r /tmp/requirements.txt
+
+RUN pip install \
+    dagster-postgres==0.14.15 \
+    dagster-docker==0.14.15
+
+# Add repository code
+
+WORKDIR /opt/dagster/app
+
+COPY . .
+
+# Run dagster gRPC server on port 4033
+EXPOSE 4033
+
+# CMD allows this to be overridden from run launchers or executors that want
+# to run other commands against your repository
+CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4033", "--package-name", "article.repo"]

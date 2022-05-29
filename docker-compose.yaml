@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:13
+    container_name: postgresql
+    env_file:
+      - .env
+
+  article:
+    build:
+      context: .
+      dockerfile: Dockerfile.article
+    container_name: article
+    image: ${ARTICLE_CURRENT_IMAGE}
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DAGSTER_POSTGRES_USER=${POSTGRES_USER}
+      - DAGSTER_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DAGSTER_POSTGRES_DB=${POSTGRES_DB}
+      - DAGSTER_CURRENT_IMAGE=${ARTICLE_CURRENT_IMAGE}
+
+  dagit:
+    build:
+      context: .
+      dockerfile: Dockerfile.dagster
+    entrypoint:
+      - dagit
+      - -h
+      - '0.0.0.0'
+      - -p
+      - '${DAGIT_PORT}'
+      - -w
+      - workspace.yaml
+    container_name: dagit
+    expose:
+      - '${DAGIT_PORT}'
+    ports:
+      - 3141:${DAGIT_PORT}
+    env_file:
+      - .env
+    environment:
+      - DAGSTER_POSTGRES_USER=${POSTGRES_USER}
+      - DAGSTER_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DAGSTER_POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - postgresql
+      - article
+
+  daemon:
+    build:
+      context: .
+      dockerfile: Dockerfile.dagster
+    entrypoint:
+      - dagster-daemon
+      - run
+    container_name: daemon
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - DAGSTER_POSTGRES_USER=${POSTGRES_USER}
+      - DAGSTER_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DAGSTER_POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - postgresql
+      - article
+
+networks:
+  default:
+    external:
+      name: thenewsquest-network

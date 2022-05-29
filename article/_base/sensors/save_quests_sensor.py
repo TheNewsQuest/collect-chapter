@@ -58,7 +58,6 @@ class BaseSaveQuestsSensor(BaseCategorizedSensor):
       new_s3_keys = get_s3_keys(bucket=bucket_name,
                                 prefix=prefix,
                                 since_key=context.last_run_key)
-      context.update_cursor("unfinished")
       # Handle skip
       if not new_s3_keys:
         yield SkipReason(
