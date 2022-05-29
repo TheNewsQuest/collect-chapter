@@ -4,29 +4,24 @@ services:
   postgresql:
     image: postgres:13
     container_name: postgresql
-    environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=collect
+    env_file:
+      - .env
 
   article:
     build:
       context: .
       dockerfile: Dockerfile.article
     container_name: article
-    image: bietdoikiem/collect-article
+    image: ${ARTICLE_CURRENT_IMAGE}
     restart: always
     env_file:
-      - .env.local
+      - .env
     environment:
-      - DAGSTER_POSTGRES_USER=root
-      - DAGSTER_POSTGRES_PASSWORD=root
-      - DAGSTER_POSTGRES_DB=collect
-      - DAGSTER_CURRENT_IMAGE=bietdoikiem/collect-article
+      - DAGSTER_POSTGRES_USER=${POSTGRES_USER}
+      - DAGSTER_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DAGSTER_POSTGRES_DB=${POSTGRES_DB}
+      - DAGSTER_CURRENT_IMAGE=${ARTICLE_CURRENT_IMAGE}
 
-  # This service runs dagit, which loads your user code from the user code container.
-  # Since our instance uses the QueuedRunCoordinator, any runs submitted from dagit will be put on
-  # a queue and later dequeued and launched by dagster-daemon.
   dagit:
     build:
       context: .
@@ -36,26 +31,26 @@ services:
       - -h
       - '0.0.0.0'
       - -p
-      - '3000'
+      - '${DAGIT_PORT}'
       - -w
       - workspace.yaml
     container_name: dagit
     expose:
-      - '3000'
+      - '${DAGIT_PORT}'
     ports:
-      - '3141:3000'
+      - 3141:${DAGIT_PORT}
+    env_file:
+      - .env
     environment:
-      - DAGSTER_POSTGRES_USER=root
-      - DAGSTER_POSTGRES_PASSWORD=root
-      - DAGSTER_POSTGRES_DB=collect
+      - DAGSTER_POSTGRES_USER=${POSTGRES_USER}
+      - DAGSTER_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DAGSTER_POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - postgresql
       - article
 
-  # This service runs the dagster-daemon process, which is responsible for taking runs
-  # off of the queue and launching them, as well as creating runs from schedules or sensors.
   daemon:
     build:
       context: .
@@ -65,11 +60,13 @@ services:
       - run
     container_name: daemon
     restart: on-failure
+    env_file:
+      - .env
     environment:
-      - DAGSTER_POSTGRES_USER=root
-      - DAGSTER_POSTGRES_PASSWORD=root
-      - DAGSTER_POSTGRES_DB=collect
-    volumes: # Make docker client accessible so we can launch containers using host docker
+      - DAGSTER_POSTGRES_USER=${POSTGRES_USER}
+      - DAGSTER_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DAGSTER_POSTGRES_DB=${POSTGRES_DB}
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - postgresql
