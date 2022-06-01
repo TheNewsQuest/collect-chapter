@@ -7,3 +7,4 @@ class Providers(StrEnum):
   """
   VNEXPRESS = "vnexpress"
   CBSNEWS = "cbsnews"
+  HISTORY = "history"  # Generalized provider from historical records
