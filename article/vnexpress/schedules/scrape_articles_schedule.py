@@ -22,7 +22,7 @@ class VNExpressScrapeArticlesSchedule(BaseScrapeArticlesSchedule):
       category: StrEnum,
       cron_schedule: str,
   ) -> None:
-    self._default_status = DefaultScheduleStatus.STOPPED if EnvVariables.APP_ENV == "local" else DefaultScheduleStatus.RUNNING
+    self._default_status = DefaultScheduleStatus.STOPPED
     super().__init__(
         category=category,
         provider=Providers.VNEXPRESS,

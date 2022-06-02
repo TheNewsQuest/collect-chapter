@@ -1,6 +1,4 @@
 # pylint: disable=wrong-import-position
-import os
-
 from dotenv import load_dotenv
 
 load_dotenv(override=False)
@@ -10,6 +8,7 @@ from strenum import StrEnum
 
 from article._base.jobs.base_job import BaseCategorizedJobFactory
 from article._base.sensors.base_sensor import BaseCategorizedSensorFactory
+from article.history.jobs.insert_history import InsertHistoryJob
 from article.vnexpress.jobs.save_quests import VNExpressSaveQuestsJobFactory
 from article.vnexpress.jobs.scrape_articles import \
     VNExpressScrapeArticlesJobFactory
@@ -41,12 +40,14 @@ def article_repository() -> RepositoryDefinition:
   Returns:
       RepositoryDefinition: Repository containing all jobs, schedules, sensors.
   """
+  # History Job
+  insert_history_job = InsertHistoryJob().build()
   # Job definitions
   jobs = [
       *(init_categorized_jobs(VNExpressScrapeArticlesJobFactory(),
                               VNExpressCategories)),
       *(init_categorized_jobs(VNExpressSaveQuestsJobFactory(),
-                              VNExpressCategories)),
+                              VNExpressCategories)), insert_history_job
   ]
   # Schedule definitions
   vnexpress_scrape_articles_schedule_factory = VNExpressScrapeArticlesScheduleFactory(
