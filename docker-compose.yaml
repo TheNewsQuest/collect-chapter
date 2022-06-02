@@ -6,6 +6,8 @@ services:
     container_name: postgresql
     env_file:
       - .env
+    volumes:
+      - ./data:/var/lib/postgresql/data
 
   article:
     build:
