@@ -45,7 +45,7 @@ class AlchemyClient:
     payload = {"content": content}
     questgen_endpoint = self.get_questgen_endpoint()
     resp_text = requests.post(url=questgen_endpoint, json=payload,
-                              timeout=60).text
+                              timeout=180).text
     quests = GeneratedQuest.schema().loads(resp_text, many=True)
     return quests
 
