@@ -5,7 +5,6 @@ from ctypes import Union
 from typing import Any, Dict, List, Optional, Set
 
 from dagster import OpDefinition
-from dataclasses_json import config
 from strenum import StrEnum
 
 from common.config.providers import Providers

@@ -51,7 +51,7 @@ class BaseSaveArticlesOp(BaseCategorizedOp):
         str: File's URI
     """
     today_datestr = format_datetime_str(datetime.now(tz=pytz.utc),
-                                        DateFormats.YYYYMMDD)
+                                        DateFormats.YYYYMMDDHHMMSS)
     s3_resource = getattr(
         context.resources,
         build_resource_key(self.provider, ResourceKeys.S3_RESOURCE_URI))

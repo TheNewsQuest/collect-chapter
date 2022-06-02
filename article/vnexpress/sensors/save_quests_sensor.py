@@ -6,7 +6,6 @@ from article._base.sensors.save_quests_sensor import BaseSaveQuestsSensor
 from article.vnexpress.jobs.save_quests import VNExpressSaveQuestsJobFactory
 from article.vnexpress.ops.save_quests import VNExpressSaveQuestsOpFactory
 from common.config.categories import VNExpressCategories
-from common.config.env import EnvVariables
 from common.config.providers import Providers
 from common.errors.key import CategoryKeyError
 
@@ -19,14 +18,12 @@ class VNExpressSaveQuestsSensor(BaseSaveQuestsSensor):
       self,
       category: StrEnum,
   ) -> None:
-    super().__init__(
-        category=category,
-        provider=Providers.VNEXPRESS,
-        save_quests_job_factory=VNExpressSaveQuestsJobFactory(),
-        save_quests_op_factory=VNExpressSaveQuestsOpFactory(),
-        default_status=DefaultSensorStatus.STOPPED
-        if EnvVariables.APP_ENV == "local" else DefaultSensorStatus.RUNNING,
-        minimum_interval_seconds=60)
+    super().__init__(category=category,
+                     provider=Providers.VNEXPRESS,
+                     save_quests_job_factory=VNExpressSaveQuestsJobFactory(),
+                     save_quests_op_factory=VNExpressSaveQuestsOpFactory(),
+                     default_status=DefaultSensorStatus.STOPPED,
+                     minimum_interval_seconds=60)
 
 
 class VNExpressSaveQuestsSensorFactory(BaseCategorizedSensorFactory):

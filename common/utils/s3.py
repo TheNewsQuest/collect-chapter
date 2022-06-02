@@ -2,6 +2,7 @@ import json
 import os
 
 import boto3
+from dagster import get_dagster_logger
 from dataclasses_json import DataClassJsonMixin
 from smart_open import open as s_open
 
@@ -60,4 +61,41 @@ def read_dataclass_json_file_s3(dataclass: DataClassJsonMixin, uri: str,
   data = None
   with s_open(uri, 'r') as file:
     data = dataclass.schema().loads(file.read(), many=many)
+  return data
+
+
+def read_dataclass_multiple_json_lines_s3(dataclass: DataClassJsonMixin,
+                                          uri: str) -> object:
+  """Read multiple json lines as dataclass.
+
+  Args:
+      dataclass (DataClassJsonMixin): Dataclass
+      uri (str): S3 URI
+      many (bool): (True) Parse many into list | (False) Parse one into object
+
+  Returns:
+      object: Data object(s)
+  """
+  data = []
+  with s_open(uri, 'r') as file:
+    for idx, line in enumerate(file):
+      try:
+        data.append(dataclass.schema().loads(line))
+      except Exception as err:
+        get_dagster_logger().error(f"{err} at line {idx+1}")
+  return data
+
+
+def read_json_file_s3(uri: str,) -> object:
+  """Read json file as dict.
+
+  Args:
+      uri (str): S3 URI
+
+  Returns:
+      object: Data object(s)
+  """
+  data = None
+  with s_open(uri, 'r') as file:
+    data = json.loads(file.read())
   return data

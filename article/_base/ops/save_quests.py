@@ -18,7 +18,7 @@ from article._base.resources.alchemy import AlchemyClient, GeneratedQuest
 from common.config.avatar import ProviderAvatars
 from common.config.providers import Providers
 from common.config.resource_keys import ResourceKeys
-from common.utils.date import get_today_utc
+from common.utils.date import format_datetime, get_today_utc
 from common.utils.id import build_id
 from common.utils.resource import build_resource_key
 from common.utils.s3 import read_dataclass_json_file_s3
@@ -56,6 +56,14 @@ class ArticleSchema(DataClassJsonMixin):
 
 
 def standardize_quest(quest: GeneratedQuest) -> QuestSchema:
+  """Standardize Quest into Mongo's schema
+
+  Args:
+      quest (GeneratedQuest): quest
+
+  Returns:
+      QuestSchema: Quest schema for MongoDB's collection
+  """
   choices = list(quest.distractors)
   rand_ans_idx = randint(0, len(choices))
   choices.insert(rand_ans_idx, quest.answerText)
@@ -156,7 +164,7 @@ class BaseSaveQuestsOp(BaseCategorizedOp):
             provider=self.provider,
             providerAvatarURL=getattr(ProviderAvatars, self.provider.upper()),
             quests=quest_schemas,
-            postedAt=article.posted_at,
+            postedAt=format_datetime(article.posted_at),
             createdAt=get_today_utc(),
         )
         insert_requests.append(InsertOne(article_schema.to_dict()))
@@ -164,7 +172,7 @@ class BaseSaveQuestsOp(BaseCategorizedOp):
       try:
         duty_db.articles.bulk_write(insert_requests, ordered=False)
       except BulkWriteError as bwe:
-        error_count = len(bwe.details.writeErrors)
+        error_count = len(bwe.details["writeErrors"])
         get_dagster_logger().error(bwe.details)
       get_dagster_logger().info(
           f"Successfully inserted {article_count-error_count} documents to 'articles' collection."
